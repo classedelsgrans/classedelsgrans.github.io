@@ -1,1 +1,101 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f6680">
+  <title>L'enigma del riu</title>
+  <meta name="description" content="Ajuda el pagès a fer creuar el llop, la cabra i la col sense deixar ningú en perill.">
+  <style>
+    :root{--ink:#173042;--river:#55c7e8;--river-deep:#1685ad;--grass:#78bd50;--grass-dark:#438c32;--sand:#f2d28a;--paper:#fffdf5;--yellow:#ffd34e;--red:#e75b54;--shadow:0 12px 30px #0a405126}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-rounded,"Arial Rounded MT Bold",Nunito,system-ui,sans-serif;color:var(--ink);background:#e9f6fb;min-height:100vh}
+    button{font:inherit}
+    .app{width:min(1180px,100%);margin:auto;padding:18px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
+    h1{font-size:clamp(1.7rem,4vw,2.7rem);margin:0;line-height:1;color:#0e5067}
+    .intro{margin:.45rem 0 0;font-family:system-ui,sans-serif;font-size:1rem}
+    .top-actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+    .small-btn,.cross-btn{border:0;border-radius:999px;cursor:pointer;font-weight:800;box-shadow:0 5px 0 #1730422b;transition:transform .15s,box-shadow .15s}
+    .small-btn{background:white;color:var(--ink);padding:10px 15px;border:2px solid #b8dbe5}
+    .small-btn:hover,.cross-btn:hover{transform:translateY(-2px)}
+    .small-btn:active,.cross-btn:active{transform:translateY(2px);box-shadow:none}
+    .game{position:relative;min-height:610px;border-radius:28px;overflow:hidden;box-shadow:var(--shadow);background:linear-gradient(90deg,var(--grass) 0 28%,var(--sand) 28% 32%,var(--river) 32% 68%,var(--sand) 68% 72%,var(--grass) 72%);border:5px solid white}
+    .game::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(172deg,transparent 0 34px,#fff2 35px 38px,transparent 39px 74px)}
+    .bank-label{position:absolute;top:18px;z-index:5;background:#fffde8e8;border:3px solid white;border-radius:99px;padding:7px 15px;font-weight:900;box-shadow:0 4px 12px #17405224}
+    .bank-label.left{left:20px}.bank-label.right{right:20px}
+    .bank{position:absolute;top:70px;bottom:115px;width:30%;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:16px;padding:18px;z-index:3}
+    .bank.left{left:0}.bank.right{right:0}
+    .character{width:112px;min-height:128px;border:4px solid white;border-radius:24px;background:#fffdf4;box-shadow:0 9px 0 #22513e32,0 14px 24px #17304222;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:grab;user-select:none;touch-action:none;transition:transform .18s,filter .18s,opacity .18s}
+    .character:hover{transform:translateY(-5px) rotate(-1deg)}
+    .character:focus-visible{outline:5px solid var(--yellow);outline-offset:3px}
+    .character.selected{outline:6px solid var(--yellow);transform:translateY(-6px);filter:saturate(1.15)}
+    .character.dragging{opacity:.45;transform:scale(.9)}
+    .emoji{font-size:3.7rem;line-height:1}.name{font-size:1.08rem;font-weight:950}.role{font-family:system-ui,sans-serif;font-size:.72rem;color:#56717f;text-align:center}
+    .river-title{position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:4;color:white;font-size:1rem;text-shadow:0 2px 3px #095877;font-weight:900;letter-spacing:.12em}
+    .boat-track{position:absolute;left:26%;right:26%;top:52%;height:180px;transform:translateY(-50%);z-index:6;pointer-events:none}
+    .boat{position:absolute;left:0;top:0;width:190px;height:145px;transition:left 1.15s cubic-bezier(.4,0,.2,1);pointer-events:auto;filter:drop-shadow(0 10px 7px #084a6660)}
+    .boat.right{left:calc(100% - 190px)}
+    .boat.moving{animation:bob .28s ease-in-out infinite alternate}
+    @keyframes bob{to{transform:translateY(-7px) rotate(1deg)}}
+    .boat-hull{position:absolute;left:5px;right:5px;bottom:2px;height:58px;background:#9a542e;border:5px solid #5d2d1a;border-radius:8px 8px 75px 75px;display:flex;align-items:center;justify-content:center;color:white;font-weight:900}
+    .boat-seat{position:absolute;left:18px;right:18px;bottom:53px;height:76px;display:flex;align-items:flex-end;justify-content:center;gap:5px}
+    .farmer,.passenger{width:74px;text-align:center}
+    .farmer .emoji,.passenger .emoji{font-size:3rem}.farmer .name,.passenger .name{background:#fffbdc;border-radius:10px;padding:2px 5px;font-size:.78rem}
+    .passenger.empty{align-self:center;border:3px dashed #ffffffaa;border-radius:18px;height:64px;display:grid;place-items:center;color:white;font:800 .75rem system-ui;background:#0c789441}
+    .dock{position:absolute;bottom:80px;width:28%;height:82px;z-index:4;background:repeating-linear-gradient(90deg,#9b623b 0 27px,#754327 28px 32px);border:4px solid #63391f;box-shadow:0 9px 0 #3e2418}
+    .dock.left{left:20%}.dock.right{right:20%}
+    .controls{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:10;width:min(92%,650px);display:flex;align-items:center;justify-content:center;gap:12px}
+    .cross-btn{background:var(--yellow);color:#3e2b00;padding:14px 24px;border:3px solid white;font-size:1.1rem;white-space:nowrap}
+    .status{min-height:54px;flex:1;background:#ffffffed;border:3px solid white;border-radius:18px;padding:8px 14px;font-family:system-ui,sans-serif;font-weight:750;display:flex;align-items:center;box-shadow:0 6px 15px #17405222}
+    .status.error{background:#fff0ef;color:#a51f1a}.status.success{background:#efffe8;color:#246813}
+    .moves{position:absolute;right:18px;bottom:18px;z-index:10;background:#0d5368;color:white;border-radius:999px;padding:9px 13px;font-weight:900}
+    dialog{border:0;border-radius:28px;padding:0;max-width:520px;width:calc(100% - 30px);box-shadow:0 30px 90px #0d354e70;background:var(--paper)}
+    dialog::backdrop{background:#0c40597c;backdrop-filter:blur(4px)}
+    .modal{padding:28px;text-align:center}.modal .big{font-size:4rem}.modal h2{font-size:2rem;margin:4px 0}.modal p{font-family:system-ui,sans-serif;font-size:1.05rem}.modal button{margin-top:8px}
+    .shake{animation:shake .35s}@keyframes shake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
+    .confetti{position:fixed;top:-20px;font-size:1.8rem;z-index:100;animation:fall 2.4s linear forwards;pointer-events:none}@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+    @media(max-width:760px){.app{padding:9px}header{align-items:flex-start}.intro{display:none}.game{min-height:700px}.bank{top:62px;bottom:155px;width:31%;padding:4px;gap:9px}.character{width:88px;min-height:105px;border-radius:18px}.emoji{font-size:3rem}.name{font-size:.92rem}.role{display:none}.river-title{display:none}.boat-track{left:22%;right:22%;top:56%}.boat{width:154px}.boat.right{left:calc(100% - 154px)}.farmer,.passenger{width:60px}.farmer .emoji,.passenger .emoji{font-size:2.5rem}.dock{width:30%;bottom:125px}.dock.left{left:18%}.dock.right{right:18%}.controls{bottom:18px;flex-direction:column;width:78%;gap:7px}.status{width:100%;min-height:48px;font-size:.88rem}.cross-btn{padding:11px 20px}.moves{top:12px;bottom:auto;right:12px}.bank-label{font-size:.78rem;padding:5px 9px}.top-actions{gap:5px}.small-btn{padding:8px 10px;font-size:.85rem}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div><h1>L'enigma del riu</h1><p class="intro">Porta tothom a l'altra riba sense deixar la cabra en perill.</p></div>
+    <div class="top-actions"><button class="small-btn" id="hintBtn">💡 Pista</button><button class="small-btn" id="resetBtn">↻ Reinicia</button></div>
+  </header>
+  <section class="game" id="game" aria-label="Joc de l'enigma del riu">
+    <div class="bank-label left">Riba de sortida</div><div class="bank-label right">Riba d'arribada</div><div class="river-title">EL RIU</div>
+    <div class="bank left" id="leftBank" aria-label="Personatges a la riba de sortida"></div>
+    <div class="bank right" id="rightBank" aria-label="Personatges a la riba d'arribada"></div>
+    <div class="dock left"></div><div class="dock right"></div>
+    <div class="boat-track"><div class="boat" id="boat" aria-label="Barca">
+      <div class="boat-seat"><div class="farmer"><div class="emoji">👨‍🌾</div><div class="name">Pagès</div></div><div class="passenger empty" id="boatPassenger">Passatger</div></div>
+      <div class="boat-hull">LA BARCA</div>
+    </div></div>
+    <div class="controls"><div class="status" id="status" aria-live="polite">Tria un passatger i fes clic a «Creua el riu».</div><button class="cross-btn" id="crossBtn">Creua el riu ⛵</button></div>
+    <div class="moves" id="moves">0 viatges</div>
+  </section>
+</main>
+<dialog id="winDialog"><div class="modal"><div class="big">🏆</div><h2>Ho has aconseguit!</h2><p>Tothom ha arribat sa i estalvi a l'altra riba.</p><button class="cross-btn" id="playAgain">Torna-hi</button></div></dialog>
+<script>
+  const characters={wolf:{name:'Llop',emoji:'🐺',role:'Es menjaria la cabra'},goat:{name:'Cabra',emoji:'🐐',role:'Es menjaria la col'},cabbage:{name:'Col',emoji:'🥬',role:'No es pot defensar'}};
+  let state={farmer:'left',wolf:'left',goat:'left',cabbage:'left',selected:null,moves:0,busy:false};
+  const leftBank=document.querySelector('#leftBank'),rightBank=document.querySelector('#rightBank'),boat=document.querySelector('#boat'),passenger=document.querySelector('#boatPassenger'),statusEl=document.querySelector('#status'),movesEl=document.querySelector('#moves'),game=document.querySelector('#game');
+  function card(id){const c=characters[id],b=document.createElement('button');b.className='character'+(state.selected===id?' selected':'');b.dataset.id=id;b.draggable=true;b.innerHTML=`<span class="emoji">${c.emoji}</span><span class="name">${c.name}</span><span class="role">${c.role}</span>`;b.setAttribute('aria-pressed',state.selected===id);b.addEventListener('click',()=>select(id));b.addEventListener('dragstart',e=>{b.classList.add('dragging');e.dataTransfer.setData('text/plain',id)});b.addEventListener('dragend',()=>b.classList.remove('dragging'));return b}
+  function render(){leftBank.innerHTML='';rightBank.innerHTML='';Object.keys(characters).forEach(id=>(state[id]==='left'?leftBank:rightBank).append(card(id)));boat.classList.toggle('right',state.farmer==='right');if(state.selected){const c=characters[state.selected];passenger.className='passenger';passenger.innerHTML=`<div class="emoji">${c.emoji}</div><div class="name">${c.name}</div>`}else{passenger.className='passenger empty';passenger.textContent='Passatger'}movesEl.textContent=`${state.moves} ${state.moves===1?'viatge':'viatges'}`}
+  function say(msg,type=''){statusEl.textContent=msg;statusEl.className='status '+type}
+  function select(id){if(state.busy)return;if(state[id]!==state.farmer){say(`El pagès i ${characters[id].name.toLowerCase()} no són a la mateixa riba.`,'error');bump();return}state.selected=state.selected===id?null:id;say(state.selected?`${characters[id].name} puja a la barca amb el pagès.`:'La barca torna a tenir un lloc lliure.');render()}
+  function unsafe(s){const absent=s.farmer==='left'?'right':'left';if(s.wolf===absent&&s.goat===absent)return 'El llop es menjaria la cabra!';if(s.goat===absent&&s.cabbage===absent)return 'La cabra es menjaria la col!';return null}
+  function bump(){game.classList.remove('shake');void game.offsetWidth;game.classList.add('shake')}
+  async function cross(){if(state.busy)return;const next=state.farmer==='left'?'right':'left';const trial={...state,farmer:next};if(state.selected)trial[state.selected]=next;const danger=unsafe(trial);if(danger){say(danger+' Prova una altra combinació.','error');bump();return}state.busy=true;boat.classList.add('moving');say(state.selected?`El pagès creua amb ${characters[state.selected].name.toLowerCase()}...`:'El pagès creua sol...');state.farmer=next;if(state.selected)state[state.selected]=next;state.moves++;await new Promise(r=>setTimeout(r,1180));boat.classList.remove('moving');state.selected=null;state.busy=false;render();if(['wolf','goat','cabbage'].every(x=>state[x]==='right')&&state.farmer==='right'){say('Fantàstic! Tothom és a l’altra riba.','success');celebrate();document.querySelector('#winDialog').showModal()}else say('Bona travessia. Qui ha de pujar ara?')}
+  function reset(){state={farmer:'left',wolf:'left',goat:'left',cabbage:'left',selected:null,moves:0,busy:false};say('Tria un passatger i fes clic a «Creua el riu».');render()}
+  function hint(){const tips=['La cabra necessita molta atenció.','De vegades, el pagès haurà de tornar amb algú.','No sempre cal portar un passatger.','Primer viatge: pensa qui està en perill amb els altres dos.'];say(tips[Math.min(state.moves,tips.length-1)])}
+  function celebrate(){for(let i=0;i<32;i++){const e=document.createElement('span');e.className='confetti';e.textContent=['⭐','🎉','✨','🌟'][i%4];e.style.left=Math.random()*100+'vw';e.style.animationDelay=Math.random()*.7+'s';document.body.append(e);setTimeout(()=>e.remove(),3200)}}
+  [leftBank,rightBank,boat].forEach(zone=>{zone.addEventListener('dragover',e=>e.preventDefault());zone.addEventListener('drop',e=>{e.preventDefault();const id=e.dataTransfer.getData('text/plain');if(id)select(id)})});
+  document.querySelector('#crossBtn').addEventListener('click',cross);document.querySelector('#resetBtn').addEventListener('click',reset);document.querySelector('#hintBtn').addEventListener('click',hint);document.querySelector('#playAgain').addEventListener('click',()=>{document.querySelector('#winDialog').close();reset()});
+  render();
+</script>
+</body>
+</html>
 
