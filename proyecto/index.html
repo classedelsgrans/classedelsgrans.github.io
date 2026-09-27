@@ -1,203 +1,376 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Proyecto · La Classe dels Grans</title>
 
 <style>
-:root{
-  --navy:#10233f;
-  --orange:#f4a51c;
+
+* {
+    box-sizing: border-box;
 }
 
-*{
-  box-sizing:border-box;
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    color: #071d3d;
+
+    background:
+        radial-gradient(circle at 15% 15%, rgba(219, 196, 255, .55), transparent 35%),
+        radial-gradient(circle at 85% 45%, rgba(255, 221, 196, .45), transparent 40%),
+        linear-gradient(180deg, #f5eaff 0%, #fff8f3 100%);
 }
 
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  color:var(--navy);
-  background:linear-gradient(#efe4ff 0,#fff0f7 50%,#fffdf8 100%);
-  min-height:100vh;
+
+/* =========================
+   CONTENEDOR GENERAL
+   ========================= */
+
+.pagina {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.hero{
-  padding:45px 20px 25px;
-  text-align:center;
+
+/* =========================
+   BOTÓN VOLVER
+   ========================= */
+
+.volver-contenedor {
+    text-align: center;
+    padding-top: 12px;
 }
 
-.back{
-  display:inline-block;
-  margin-bottom:28px;
-  padding:10px 18px;
-  border-radius:999px;
-  background:#ffffffcc;
-  color:var(--navy);
-  text-decoration:none;
-  font-weight:700;
-  box-shadow:0 5px 15px #17304b18;
+.volver {
+    display: inline-block;
+    padding: 11px 20px;
+
+    background: rgba(255,255,255,.9);
+    color: #071d3d;
+
+    border-radius: 999px;
+
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+
+    box-shadow: 0 7px 20px rgba(30,30,60,.10);
+
+    transition: transform .2s ease, box-shadow .2s ease;
 }
 
-.back:hover{
-  transform:translateY(-2px);
+.volver:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(30,30,60,.15);
 }
 
-.big-icon{
-  font-size:4.5rem;
-  display:block;
-  margin-bottom:10px;
+
+/* =========================
+   CABECERA
+   ========================= */
+
+header {
+    text-align: center;
+    padding: 40px 20px 35px;
 }
 
-h1{
-  font-size:clamp(2.7rem,7vw,5.5rem);
-  line-height:1;
-  margin:0;
-  font-weight:900;
-  letter-spacing:-.045em;
+.icono-principal {
+    font-size: 65px;
+    margin-bottom: 12px;
 }
 
-.underline{
-  width:min(280px,50vw);
-  height:8px;
-  background:var(--orange);
-  border-radius:999px;
-  margin:20px auto;
-  transform:rotate(-1deg);
+header h1 {
+    margin: 0;
+
+    font-size: clamp(55px, 8vw, 88px);
+    line-height: 1;
+
+    font-weight: 900;
+    letter-spacing: -3px;
 }
 
-.intro{
-  max-width:650px;
-  margin:0 auto;
-  color:#536278;
-  font-size:1.05rem;
-  line-height:1.6;
+.linea {
+    width: 280px;
+    max-width: 65%;
+    height: 8px;
+
+    margin: 24px auto;
+
+    background: #f5a611;
+    border-radius: 20px;
 }
 
-.cards{
-  max-width:700px;
-  margin:35px auto 70px;
-  padding:0 22px;
+.subtitulo {
+    margin: 0 auto;
+    max-width: 650px;
+
+    font-size: 17px;
+    line-height: 1.5;
+
+    color: #435678;
 }
 
-.card{
-  position:relative;
-  display:flex;
-  min-height:300px;
-  padding:30px;
-  border-radius:28px;
-  text-decoration:none;
-  color:inherit;
-  overflow:hidden;
-  box-shadow:0 16px 40px #17304b1a;
-  border:2px solid #fff;
-  transition:.22s ease;
-  flex-direction:column;
-  justify-content:flex-end;
-  background:linear-gradient(145deg,#eee0ff,#fff2dc);
+
+/* =========================
+   CONTENIDO
+   ========================= */
+
+main {
+    width: min(655px, calc(100% - 40px));
+    margin: 20px auto 60px;
+    flex: 1;
 }
 
-.card:hover{
-  transform:translateY(-7px);
-  box-shadow:0 22px 48px #17304b2c;
+
+/* =========================
+   TARJETAS
+   ========================= */
+
+.tarjeta {
+    position: relative;
+
+    display: block;
+
+    padding: 55px 80px 32px 30px;
+    margin-bottom: 25px;
+
+    min-height: 300px;
+
+    border-radius: 28px;
+
+    background:
+        linear-gradient(
+            115deg,
+            rgba(231, 215, 255, .70),
+            rgba(255, 239, 211, .78)
+        );
+
+    border: 2px solid rgba(255,255,255,.9);
+
+    box-shadow: 0 18px 40px rgba(44,38,75,.12);
+
+    color: #071d3d;
+    text-decoration: none;
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
 }
 
-.icon{
-  position:absolute;
-  top:30px;
-  left:30px;
-  font-size:5rem;
-  filter:drop-shadow(0 5px 4px #00000012);
+.tarjeta:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 24px 50px rgba(44,38,75,.17);
 }
 
-.card h2{
-  font-size:clamp(1.65rem,3vw,2.3rem);
-  margin:0 0 8px;
-  padding-right:40px;
-  line-height:1.15;
+.icono-tarjeta {
+    font-size: 64px;
+    margin-bottom: 20px;
 }
 
-.card p{
-  margin:0;
-  color:#536278;
-  font-size:1rem;
-  line-height:1.45;
-  padding-right:45px;
+.tarjeta h2 {
+    margin: 0 0 8px;
+
+    max-width: 530px;
+
+    font-size: 37px;
+    line-height: 1.12;
+    letter-spacing: -.8px;
 }
 
-.arrow{
-  position:absolute;
-  right:24px;
-  bottom:24px;
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  display:grid;
-  place-items:center;
-  background:var(--navy);
-  color:white;
-  font-size:1.6rem;
+.tarjeta p {
+    margin: 0;
+
+    color: #526382;
+
+    font-size: 15px;
+    line-height: 1.5;
 }
 
-footer{
-  text-align:center;
-  padding:20px 20px 35px;
-  color:#718096;
-  font-size:.8rem;
+
+/* =========================
+   FLECHA
+   ========================= */
+
+.flecha {
+    position: absolute;
+
+    right: 24px;
+    bottom: 23px;
+
+    width: 50px;
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #071d3d;
+    color: white;
+
+    font-size: 29px;
+    font-weight: 400;
+
+    transition: transform .25s ease;
 }
 
-@media(max-width:700px){
-  .card{
-    min-height:250px;
-  }
+.tarjeta:hover .flecha {
+    transform: translateX(4px);
 }
+
+
+/* =========================
+   PIE
+   ========================= */
+
+footer {
+    text-align: center;
+
+    padding: 25px 20px 32px;
+
+    color: #596c8d;
+
+    font-size: 12px;
+}
+
+
+/* =========================
+   MÓVIL
+   ========================= */
+
+@media (max-width: 650px) {
+
+    header {
+        padding-top: 32px;
+    }
+
+    .icono-principal {
+        font-size: 52px;
+    }
+
+    header h1 {
+        font-size: 52px;
+        letter-spacing: -2px;
+    }
+
+    .linea {
+        width: 190px;
+        height: 6px;
+    }
+
+    .subtitulo {
+        font-size: 16px;
+    }
+
+    main {
+        width: calc(100% - 28px);
+    }
+
+    .tarjeta {
+        min-height: 260px;
+        padding: 38px 65px 28px 25px;
+        border-radius: 24px;
+    }
+
+    .icono-tarjeta {
+        font-size: 53px;
+    }
+
+    .tarjeta h2 {
+        font-size: 29px;
+    }
+
+    .flecha {
+        width: 46px;
+        height: 46px;
+        right: 18px;
+        bottom: 18px;
+    }
+}
+
 </style>
 </head>
 
+
 <body>
 
-<header class="hero">
-
-  <a class="back" href="../index.html">
-    ← La Classe dels Grans
-  </a>
-
-  <span class="big-icon">🔬</span>
-
-  <h1>PROYECTO</h1>
-
-  <div class="underline"></div>
-
-  <p class="intro">
-    Investigamos, descubrimos y buscamos respuestas a nuestras preguntas.
-  </p>
-
-</header>
+<div class="pagina">
 
 
-<main class="cards">
+    <!-- VOLVER A LA PORTADA -->
 
-  <a class="card" href="../minerales/index.html">
+    <div class="volver-contenedor">
 
-    <div class="icon">💎</div>
+        <a href="../" class="volver">
+            ← La Classe dels Grans
+        </a>
 
-    <h2>¿De dónde salen tantos tipos de minerales?</h2>
-
-    <p>
-      Descubre cómo se forman los minerales y por qué existe tanta variedad.
-    </p>
-
-    <div class="arrow">›</div>
-
-  </a>
-
-</main>
+    </div>
 
 
-<footer>
-  La Classe dels Grans · Escola Sant Isidre
-</footer>
+    <!-- CABECERA -->
+
+    <header>
+
+        <div class="icono-principal">
+            🔬
+        </div>
+
+        <h1>PROYECTO</h1>
+
+        <div class="linea"></div>
+
+        <p class="subtitulo">
+            Investigamos, descubrimos y buscamos respuestas a nuestras preguntas.
+        </p>
+
+    </header>
+
+
+    <!-- PROYECTOS -->
+
+    <main>
+
+
+        <!-- MINERALES -->
+
+        <a href="minerales/" class="tarjeta">
+
+            <div class="icono-tarjeta">
+                💎
+            </div>
+
+            <h2>
+                ¿De dónde salen tantos tipos de minerales?
+            </h2>
+
+            <p>
+                Descubre cómo se forman los minerales y por qué existe tanta variedad.
+            </p>
+
+            <div class="flecha">
+                ›
+            </div>
+
+        </a>
+
+
+    </main>
+
+
+    <!-- PIE -->
+
+    <footer>
+        La Classe dels Grans · Escola Sant Isidre
+    </footer>
+
+
+</div>
 
 </body>
 </html>
