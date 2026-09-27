@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>¿De dónde salen tantos minerales?</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        background:
+            radial-gradient(circle at 20% 20%, rgba(113, 76, 160, 0.18), transparent 35%),
+            radial-gradient(circle at 80% 70%, rgba(44, 139, 143, 0.15), transparent 35%),
+            linear-gradient(180deg, #f7f4ef 0%, #edf1ee 100%);
+        color: #263238;
+        min-height: 100vh;
+    }
+
+    /* =========================
+       PANTALLA DE CONTRASEÑA
+       ========================= */
+
+    #acceso {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 25px;
+        background:
+            radial-gradient(circle at 30% 20%, #6e5794 0%, transparent 35%),
+            radial-gradient(circle at 80% 80%, #326f73 0%, transparent 35%),
+            #182328;
+        transition: opacity .7s ease, visibility .7s ease;
+    }
+
+    #acceso.oculto {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .caja-acceso {
+        width: min(440px, 100%);
+        padding: 42px 35px;
+        border-radius: 28px;
+        text-align: center;
+        color: white;
+        background: rgba(255,255,255,.11);
+        border: 1px solid rgba(255,255,255,.18);
+        box-shadow: 0 25px 70px rgba(0,0,0,.35);
+        backdrop-filter: blur(16px);
+    }
+
+    .candado {
+        font-size: 52px;
+        margin-bottom: 12px;
+    }
+
+    .caja-acceso h1 {
+        margin: 0 0 12px;
+        font-size: 29px;
+    }
+
+    .caja-acceso p {
+        opacity: .82;
+        line-height: 1.5;
+        margin-bottom: 25px;
+    }
+
+    .caja-acceso input {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        outline: none;
+        border-radius: 14px;
+        font-size: 17px;
+        text-align: center;
+        margin-bottom: 12px;
+    }
+
+    .caja-acceso button {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 14px;
+        background: #ffffff;
+        color: #263238;
+        font-size: 17px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform .2s, background .2s;
+    }
+
+    .caja-acceso button:hover {
+        transform: translateY(-2px);
+        background: #f0eee9;
+    }
+
+    #error {
+        height: 22px;
+        margin-top: 12px;
+        font-size: 14px;
+        color: #ffd4d4;
+    }
+
+    /* =========================
+       CABECERA
+       ========================= */
+
+    header {
+        text-align: center;
+        padding: 70px 20px 45px;
+    }
+
+    header .mini {
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        font-size: 13px;
+        font-weight: 800;
+        color: #6f6284;
+    }
+
+    header h1 {
+        max-width: 850px;
+        margin: 13px auto;
+        font-size: clamp(34px, 6vw, 65px);
+        line-height: 1.05;
+        color: #263238;
+    }
+
+    header p {
+        font-size: 19px;
+        color: #637076;
+    }
+
+    /* =========================
+       CAMINO
+       ========================= */
+
+    .camino {
+        position: relative;
+        max-width: 850px;
+        margin: 20px auto 150px;
+        padding: 20px 25px;
+    }
+
+    .linea {
+        position: absolute;
+        left: 50%;
+        top: 70px;
+        bottom: 80px;
+        width: 5px;
+        transform: translateX(-50%);
+        border-radius: 10px;
+        background: linear-gradient(#725b93, #42848a, #d39743);
+        opacity: .28;
+    }
+
+    .hito {
+        position: relative;
+        min-height: 270px;
+        display: flex;
+        align-items: center;
+        margin: 20px 0 70px;
+        opacity: 0;
+        transform: translateY(45px);
+        pointer-events: none;
+        transition: opacity .8s ease, transform .8s ease;
+    }
+
+    .hito.visible {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    .hito:nth-of-type(odd) {
+        justify-content: flex-start;
+        padding-right: 52%;
+    }
+
+    .hito:nth-of-type(even) {
+        justify-content: flex-end;
+        padding-left: 52%;
+    }
+
+    .punto {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 38px;
+        background: white;
+        border: 5px solid #725b93;
+        box-shadow: 0 10px 35px rgba(0,0,0,.16);
+        cursor: pointer;
+        z-index: 5;
+        transition: transform .25s, box-shadow .25s;
+    }
+
+    .punto:hover {
+        transform: translateX(-50%) scale(1.1);
+        box-shadow: 0 15px 40px rgba(0,0,0,.22);
+    }
+
+    .tarjeta {
+        width: 100%;
+        background: rgba(255,255,255,.82);
+        border: 1px solid rgba(0,0,0,.06);
+        border-radius: 24px;
+        padding: 27px;
+        box-shadow: 0 15px 45px rgba(40,50,55,.10);
+    }
+
+    .numero {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #847394;
+        font-weight: 800;
+    }
+
+    .tarjeta h2 {
+        margin: 8px 0 8px;
+        font-size: 27px;
+    }
+
+    .tarjeta p {
+        color: #647176;
+        line-height: 1.55;
+        margin-bottom: 0;
+    }
+
+    .contenido {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: max-height 1s ease, opacity .8s ease, margin .8s ease;
+    }
+
+    .contenido.abierto {
+        max-height: 700px;
+        opacity: 1;
+        margin-top: 22px;
+    }
+
+    .mensaje {
+        padding: 19px;
+        border-radius: 16px;
+        background: #f2efe8;
+        font-size: 18px;
+        line-height: 1.55;
+        font-weight: 600;
+    }
+
+    /* =========================
+       LOGO DE EJEMPLO
+       ========================= */
+
+    .logo-ejemplo {
+        margin: 25px auto 8px;
+        width: 250px;
+        height: 250px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .texto-arriba,
+    .texto-abajo {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: #564271;
+    }
+
+    .texto-arriba {
+        top: 8px;
+        font-size: 18px;
+    }
+
+    .texto-abajo {
+        bottom: 5px;
+        font-size: 17px;
+    }
+
+    .mineral {
+        width: 130px;
+        height: 145px;
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    .cristal {
+        position: absolute;
+        bottom: 15px;
+        width: 62px;
+        height: 115px;
+        background: linear-gradient(135deg, #b99cdb, #6e5794 65%, #49385e);
+        clip-path: polygon(50% 0, 88% 28%, 100% 78%, 70% 100%, 25% 96%, 0 72%, 15% 25%);
+        box-shadow: 0 15px 30px rgba(80,50,110,.25);
+    }
+
+    .cristal::after {
+        content: "";
+        position: absolute;
+        inset: 12px 20px 35px 12px;
+        background: rgba(255,255,255,.25);
+        clip-path: polygon(50% 0,100% 100%,0 80%);
+    }
+
+    .mini-cristal1,
+    .mini-cristal2 {
+        position: absolute;
+        bottom: 15px;
+        background: #8c75ad;
+        clip-path: polygon(50% 0, 100% 35%, 85% 100%, 15% 100%, 0 35%);
+    }
+
+    .mini-cristal1 {
+        width: 42px;
+        height: 76px;
+        left: 5px;
+        transform: rotate(-17deg);
+    }
+
+    .mini-cristal2 {
+        width: 40px;
+        height: 68px;
+        right: 3px;
+        transform: rotate(19deg);
+        background: #4c8d91;
+    }
+
+    .nota-logo {
+        font-size: 14px !important;
+        text-align: center;
+        font-style: italic;
+        color: #7b8589 !important;
+    }
+
+    /* =========================
+       FINAL
+       ========================= */
+
+    .misterio {
+        text-align: center;
+        font-size: 55px;
+        letter-spacing: 18px;
+        margin-top: 20px;
+        animation: flotar 2.5s ease-in-out infinite;
+    }
+
+    @keyframes flotar {
+        0%,100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    /* =========================
+       MÓVIL
+       ========================= */
+
+    @media (max-width: 700px) {
+
+        header {
+            padding-top: 45px;
+        }
+
+        .linea {
+            left: 45px;
+        }
+
+        .hito,
+        .hito:nth-of-type(odd),
+        .hito:nth-of-type(even) {
+            padding: 0 0 0 95px;
+            justify-content: flex-start;
+            min-height: 250px;
+        }
+
+        .punto {
+            left: 20px;
+            transform: none;
+            width: 62px;
+            height: 62px;
+            font-size: 28px;
+        }
+
+        .punto:hover {
+            transform: scale(1.05);
+        }
+
+        .tarjeta {
+            padding: 21px;
+        }
+
+        .tarjeta h2 {
+            font-size: 23px;
+        }
+    }
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     ACCESO
+     ========================= -->
+
+<div id="acceso">
+    <div class="caja-acceso">
+
+        <div class="candado">🔐</div>
+
+        <h1>Hay algo por descubrir...</h1>
+
+        <p>
+            Para entrar en este proyecto necesitarás una palabra.
+            <br>
+            Una palabra muy importante para cualquier investigador.
+        </p>
+
+        <input
+            id="password"
+            type="password"
+            placeholder="Escribe la palabra..."
+            autocomplete="off"
+        >
+
+        <button onclick="comprobarClave()">Descubrir</button>
+
+        <div id="error"></div>
+
+    </div>
+</div>
+
+
+<!-- =========================
+     CABECERA
+     ========================= -->
+
+<header>
+
+    <div class="mini">Proyecto · La Classe dels Grans</div>
+
+    <h1>¿De dónde salen tantos tipos de minerales?</h1>
+
+    <p>
+        Tenemos una pregunta. Ahora tendremos que construir el camino.
+    </p>
+
+</header>
+
+
+<!-- =========================
+     ITINERARIO
+     ========================= -->
+
+<main class="camino">
+
+    <div class="linea"></div>
+
+
+    <!-- HITO 1 -->
+
+    <section class="hito visible" id="hito1">
+
+        <div class="punto" onclick="abrirHito(1)">💎</div>
+
+        <div class="tarjeta">
+
+            <div class="numero">Primer paso</div>
+
+            <h2>Creamos nuestra identidad</h2>
+
+            <p>
+                Todo gran proyecto necesita algo que lo represente.
+            </p>
+
+            <div class="contenido" id="contenido1">
+
+                <div class="mensaje">
+                    🎨 Esta semana tenemos una misión:
+                    <strong>crear el logo de nuestro proyecto.</strong>
+                </div>
+
+                <div class="logo-ejemplo">
+
+                    <div class="texto-arriba">
+                        ¿DE DÓNDE SALEN...
+                    </div>
+
+                    <div class="mineral">
+                        <div class="mini-cristal1"></div>
+                        <div class="mini-cristal2"></div>
+                        <div class="cristal"></div>
+                    </div>
+
+                    <div class="texto-abajo">
+                        ...TANTOS MINERALES?
+                    </div>
+
+                </div>
+
+                <p class="nota-logo">
+                    Esto es solo una idea... vuestro logo puede ser
+                    completamente diferente.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- HITO 2 -->
+
+    <section class="hito" id="hito2">
+
+        <div class="punto" onclick="abrirHito(2)">💡</div>
+
+        <div class="tarjeta">
+
+            <div class="numero">Segundo paso</div>
+
+            <h2>¿Qué sabemos?</h2>
+
+            <p>
+                Antes de investigar, vamos a mirar todo lo que ya llevamos
+                en nuestra mochila.
+            </p>
+
+            <div class="contenido" id="contenido2">
+
+                <div class="mensaje">
+                    🧠 Vamos a descubrir <strong>qué sabemos ya sobre los minerales</strong>.
+                    <br><br>
+                    Quizá sabemos mucho más de lo que pensamos...
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- HITO 3 -->
+
+    <section class="hito" id="hito3">
+
+        <div class="punto" onclick="abrirHito(3)">🤔</div>
+
+        <div class="tarjeta">
+
+            <div class="numero">Tercer paso</div>
+
+            <h2>¿Qué queremos saber?</h2>
+
+            <p>
+                Saber cosas también hace aparecer nuevas preguntas.
+            </p>
+
+            <div class="contenido" id="contenido3">
+
+                <div class="mensaje">
+                    🔎 Ahora viene lo más interesante:
+                    <strong>
+                        ¿qué cosas sobre los minerales nos gustaría descubrir?
+                    </strong>
+                    <br><br>
+                    Nuestras preguntas empezarán a marcar el camino.
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- HITO 4 -->
+
+    <section class="hito" id="hito4">
+
+        <div class="punto" onclick="abrirHito(4)">❓</div>
+
+        <div class="tarjeta">
+
+            <div class="numero">¿Cuarto paso?</div>
+
+            <h2>¿Y ahora qué?</h2>
+
+            <p>
+                A partir de aquí todavía no sabemos exactamente qué camino
+                seguiremos.
+            </p>
+
+            <div class="contenido" id="contenido4">
+
+                <div class="mensaje">
+                    🗺️ El resto del camino <strong>todavía no está escrito</strong>.
+                    <br><br>
+                    Tendremos que decidir juntos qué necesitamos aprender,
+                    qué queremos investigar y cómo podemos encontrar respuestas
+                    a nuestras preguntas.
+                </div>
+
+                <div class="misterio">
+                    ? ? ?
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script>
+
+/* =========================
+   CONTRASEÑA
+   ========================= */
+
+function comprobarClave() {
+
+    const entrada = document
+        .getElementById("password")
+        .value
+        .trim()
+        .toLowerCase();
+
+    if (entrada === "curiosidad") {
+
+        document
+            .getElementById("acceso")
+            .classList.add("oculto");
+
+    } else {
+
+        document.getElementById("error").textContent =
+            "Esa no parece ser la palabra... 🤔";
+
+    }
+}
+
+
+/* Permitir pulsar ENTER */
+
+document
+    .getElementById("password")
+    .addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+            comprobarClave();
+        }
+
+    });
+
+
+/* =========================
+   ITINERARIO
+   ========================= */
+
+let abiertos = new Set();
+
+function abrirHito(numero) {
+
+    if (abiertos.has(numero)) return;
+
+    abiertos.add(numero);
+
+    const contenido =
+        document.getElementById("contenido" + numero);
+
+    contenido.classList.add("abierto");
+
+
+    /* Mostrar el siguiente paso */
+
+    const siguiente =
+        document.getElementById("hito" + (numero + 1));
+
+    if (siguiente) {
+
+        setTimeout(() => {
+
+            siguiente.classList.add("visible");
+
+            setTimeout(() => {
+
+                siguiente.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+            }, 350);
+
+        }, 900);
+
+    }
+}
+
+</script>
+
+</body>
+</html>
