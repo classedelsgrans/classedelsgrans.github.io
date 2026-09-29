@@ -1,0 +1,1439 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aproximacions POLE POSITION</title>
+
+<style>
+:root{
+  --navy:#10233f;
+  --orange:#f4a51c;
+  --red:#e53935;
+  --green:#26945d;
+  --muted:#637187;
+  --line:#dce4ec;
+  --gold:#f5c842;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--navy);
+  min-height:100vh;
+  background:linear-gradient(#dff4ff 0,#f8fbf5 45%,#fffdf8 100%);
+}
+
+button,input{font:inherit}
+button{cursor:pointer}
+
+.wrap{
+  width:min(1180px,calc(100% - 32px));
+  margin:auto;
+}
+
+header{
+  text-align:center;
+  padding:42px 0 25px;
+}
+
+.flag{font-size:3rem}
+
+h1{
+  margin:5px 0 0;
+  font-size:clamp(2.7rem,7vw,5.8rem);
+  line-height:.9;
+  font-weight:950;
+  letter-spacing:-.055em;
+}
+
+h1 span{
+  display:block;
+  color:var(--red);
+  font-size:.47em;
+  letter-spacing:.12em;
+  margin-top:17px;
+}
+
+.underline{
+  width:min(360px,55vw);
+  height:8px;
+  background:var(--orange);
+  border-radius:99px;
+  margin:21px auto 17px;
+}
+
+.subtitle{
+  max-width:720px;
+  margin:auto;
+  color:#4e5d72;
+  line-height:1.55;
+}
+
+.panel{
+  background:#ffffffdc;
+  border:2px solid white;
+  border-radius:28px;
+  box-shadow:0 16px 42px #17304b18;
+  padding:28px;
+}
+
+.home-grid{
+  display:grid;
+  grid-template-columns:.8fr 1.2fr;
+  gap:24px;
+  margin:20px auto 55px;
+}
+
+h2{
+  margin:0 0 18px;
+  font-size:1.65rem;
+}
+
+.levels{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.level{
+  border:2px solid var(--line);
+  background:white;
+  border-radius:20px;
+  padding:20px 13px;
+  color:var(--navy);
+  font-weight:900;
+  transition:.18s;
+  min-height:130px;
+}
+
+.level:hover{
+  transform:translateY(-3px);
+  border-color:#9eb2c8;
+}
+
+.level.selected{
+  border-color:var(--navy);
+  box-shadow:0 0 0 3px #10233f18;
+  background:#f5f9ff;
+}
+
+.level .ico{
+  display:block;
+  font-size:2.2rem;
+  margin-bottom:8px;
+}
+
+.level small{
+  display:block;
+  font-weight:600;
+  color:var(--muted);
+  margin-top:6px;
+  line-height:1.35;
+}
+
+.start{
+  width:100%;
+  border:0;
+  border-radius:18px;
+  background:var(--navy);
+  color:white;
+  padding:17px 20px;
+  font-weight:950;
+  font-size:1.08rem;
+  margin-top:16px;
+}
+
+.start:disabled{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+.note{
+  font-size:.88rem;
+  color:var(--muted);
+  line-height:1.5;
+  margin:15px 2px 0;
+}
+
+/* RÀNQUINGS */
+
+.ranking-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.ranking-title h2{margin:0}
+
+.public{
+  background:#fff4c9;
+  border:1px solid #ecd06b;
+  border-radius:99px;
+  padding:7px 11px;
+  font-size:.75rem;
+  font-weight:900;
+}
+
+.rankings{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+
+.board{
+  border:1px solid var(--line);
+  border-radius:20px;
+  overflow:hidden;
+  background:#f8fafc;
+}
+
+.board-title{
+  padding:15px;
+  background:white;
+  border-bottom:1px solid var(--line);
+  font-weight:950;
+  text-align:center;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:34px 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:10px 13px;
+  border-bottom:1px solid #e6ebf0;
+  font-size:.91rem;
+}
+
+.row:last-child{border-bottom:0}
+
+.position{font-weight:950}
+.driver{
+  font-weight:750;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.time{
+  font-weight:950;
+  font-variant-numeric:tabular-nums;
+}
+
+.row:nth-child(1) .position{color:#c79500}
+.row:nth-child(2) .position{color:#7d8791}
+.row:nth-child(3) .position{color:#a65c28}
+
+.empty,.loading{
+  padding:25px 12px;
+  text-align:center;
+  color:var(--muted);
+  font-size:.9rem;
+}
+
+/* JOC */
+
+#game,#finish{display:none}
+
+.game-wrap{
+  max-width:760px;
+  margin:20px auto 60px;
+}
+
+.game-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.pill{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:99px;
+  padding:9px 14px;
+  font-weight:900;
+}
+
+.question-card{
+  text-align:center;
+  padding:clamp(30px,6vw,58px);
+}
+
+.target{
+  color:var(--red);
+  text-transform:uppercase;
+  font-size:.92rem;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+
+.number{
+  font-size:clamp(3.5rem,12vw,7rem);
+  font-weight:950;
+  letter-spacing:-.055em;
+  margin:15px 0 6px;
+  font-variant-numeric:tabular-nums;
+}
+
+.prompt{
+  color:#536278;
+  font-size:1.1rem;
+  margin-bottom:26px;
+}
+
+.answer{
+  display:flex;
+  gap:10px;
+  max-width:520px;
+  margin:auto;
+}
+
+.answer input{
+  width:100%;
+  min-width:0;
+  border:2px solid #cbd6e2;
+  border-radius:16px;
+  padding:16px;
+  text-align:center;
+  font-size:1.4rem;
+  font-weight:900;
+  color:var(--navy);
+  outline:none;
+}
+
+.answer input:focus{
+  border-color:var(--navy);
+}
+
+.check{
+  border:0;
+  border-radius:16px;
+  background:var(--orange);
+  color:#17283d;
+  padding:0 22px;
+  font-weight:950;
+}
+
+.feedback{
+  height:31px;
+  margin-top:17px;
+  font-weight:950;
+}
+
+.ok{color:var(--green)}
+.bad{color:var(--red)}
+
+.progress{
+  height:10px;
+  background:#e4eaf0;
+  border-radius:99px;
+  overflow:hidden;
+  margin-top:24px;
+}
+
+.progress div{
+  height:100%;
+  background:var(--green);
+  width:0;
+  transition:.25s;
+}
+
+/* FINAL */
+
+.finish-card{
+  max-width:720px;
+  margin:20px auto 60px;
+  text-align:center;
+}
+
+.trophy{font-size:4.8rem}
+
+.final-label{
+  color:var(--muted);
+  font-weight:950;
+  letter-spacing:.1em;
+}
+
+.final-time{
+  font-size:clamp(3.3rem,10vw,6rem);
+  font-weight:950;
+  letter-spacing:-.05em;
+  margin:7px 0 10px;
+}
+
+.savebox{
+  max-width:500px;
+  margin:27px auto 0;
+  padding-top:25px;
+  border-top:1px solid var(--line);
+}
+
+.savebox label{
+  display:block;
+  font-weight:900;
+  margin-bottom:10px;
+}
+
+.save-row{
+  display:flex;
+  gap:9px;
+}
+
+.save-row input{
+  width:100%;
+  min-width:0;
+  border:2px solid #cbd6e2;
+  border-radius:15px;
+  padding:13px 15px;
+  font-weight:750;
+}
+
+.save-row button{
+  border:0;
+  border-radius:15px;
+  background:var(--navy);
+  color:white;
+  padding:0 18px;
+  font-weight:950;
+}
+
+.save-status{
+  min-height:25px;
+  margin-top:10px;
+  font-size:.9rem;
+  font-weight:800;
+}
+
+.again{
+  margin-top:18px;
+  border:0;
+  background:transparent;
+  color:var(--navy);
+  text-decoration:underline;
+  font-weight:900;
+}
+
+footer{
+  text-align:center;
+  color:#748196;
+  font-size:.8rem;
+  padding:0 20px 30px;
+}
+
+@media(max-width:900px){
+  .home-grid{grid-template-columns:1fr}
+}
+
+@media(max-width:650px){
+  .rankings{grid-template-columns:1fr}
+  .levels{grid-template-columns:1fr}
+  .answer,.save-row{flex-direction:column}
+  .check,.save-row button{padding:14px}
+  .panel{padding:20px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<header>
+  <div class="flag">🏁</div>
+  <h1>
+    APROXIMACIONS
+    <span>POLE POSITION</span>
+  </h1>
+
+  <div class="underline"></div>
+
+  <p class="subtitle">
+    10 aproximacions. El cronòmetre corre, però no el veuràs fins que creuis la meta.
+    Precisió, concentració... i gas!
+  </p>
+</header>
+
+
+<main id="home">
+
+<div class="home-grid">
+
+<section class="panel">
+
+<h2>Tria el teu nivell</h2>
+
+<div class="levels">
+
+<button class="level" data-level="mitja">
+  <span class="ico">🏎️</span>
+  CICLE MITJÀ
+  <small>
+    Desenes · Centenes · Unitats de miler
+  </small>
+</button>
+
+<button class="level" data-level="superior">
+  <span class="ico">🏎️</span>
+  CICLE SUPERIOR
+  <small>
+    Desenes de miler · Centenes de miler · Milions · Desenes de milió
+  </small>
+</button>
+
+</div>
+
+<button id="startBtn" class="start" disabled>
+  🏁 ESTIC PREPARAT!
+</button>
+
+<p class="note">
+  El cronòmetre començarà quan premis el botó.
+  Si t'equivoques, el temps continuarà corrent.
+  <strong>El temps estarà completament ocult fins que hagis encertat les 10 aproximacions.</strong>
+</p>
+
+</section>
+
+
+<section class="panel">
+
+<div class="ranking-title">
+  <h2>🏆 POLE POSITION</h2>
+  <span class="public">RÀNQUING PÚBLIC</span>
+</div>
+
+<div class="rankings">
+
+<div class="board">
+  <div class="board-title">
+    🏎️ TOP 10 · CICLE MITJÀ
+  </div>
+
+  <div id="rankMitja" class="loading">
+    Carregant classificació...
+  </div>
+</div>
+
+
+<div class="board">
+  <div class="board-title">
+    🏎️ TOP 10 · CICLE SUPERIOR
+  </div>
+
+  <div id="rankSuperior" class="loading">
+    Carregant classificació...
+  </div>
+</div>
+
+</div>
+</section>
+
+</div>
+</main>
+
+
+<main id="game" class="game-wrap">
+
+<div class="game-top">
+  <span id="gameLevel" class="pill"></span>
+  <span id="counter" class="pill">1 / 10</span>
+</div>
+
+<section class="panel question-card">
+
+<div id="target" class="target"></div>
+
+<div id="number" class="number"></div>
+
+<div class="prompt">
+  Quina és l'aproximació correcta?
+</div>
+
+<form id="answerForm" class="answer">
+
+<input
+  id="answerInput"
+  inputmode="numeric"
+  autocomplete="off"
+  placeholder="Escriu el resultat"
+>
+
+<button class="check" type="submit">
+  COMPROVA
+</button>
+
+</form>
+
+<div id="feedback" class="feedback"></div>
+
+<div class="progress">
+  <div id="progressBar"></div>
+</div>
+
+</section>
+</main>
+
+
+<main id="finish">
+
+<section class="panel finish-card">
+
+<div class="trophy">🏆</div>
+
+<h2>HAS CREUAT LA META!</h2>
+
+<div class="final-label">
+  EL TEU TEMPS
+</div>
+
+<div id="finalTime" class="final-time">
+  --
+</div>
+
+<p id="finishText"></p>
+
+
+<div class="savebox">
+
+<label for="playerName">
+  Nom o àlies per al rànquing
+</label>
+
+<div class="save-row">
+
+<input
+  id="playerName"
+  maxlength="20"
+  autocomplete="off"
+  placeholder="Ex.: Jana"
+>
+
+<button id="saveBtn" type="button">
+  GUARDA TEMPS
+</button>
+
+</div>
+
+<div id="saveStatus" class="save-status"></div>
+
+</div>
+
+
+<button id="againBtn" class="again" type="button">
+  ← Tornar a la Pole Position
+</button>
+
+</section>
+
+</main>
+
+</div>
+
+
+<footer>
+La Classe dels Grans · Escola Sant Isidre
+</footer>
+
+
+<script>
+
+/* =========================
+   CONNEXIÓ AMB SUPABASE
+========================= */
+
+const SUPABASE_URL =
+"https://zcaijzcchezynonggygg.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_MKg5kxOV0zYHmrZhSKC1ig_MpiovQ3c";
+
+
+/* =========================
+   VARIABLES DEL JOC
+========================= */
+
+let selectedLevel = null;
+let questions = [];
+let current = 0;
+
+let startTime = 0;
+let finalMs = 0;
+let saved = false;
+
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const $ = id => document.getElementById(id);
+
+
+/* =========================
+   SELECTOR DE NIVELL
+========================= */
+
+document.querySelectorAll(".level").forEach(button => {
+
+button.addEventListener("click",()=>{
+
+document.querySelectorAll(".level")
+.forEach(b=>b.classList.remove("selected"));
+
+button.classList.add("selected");
+
+selectedLevel = button.dataset.level;
+
+$("startBtn").disabled = false;
+
+});
+
+});
+
+
+$("startBtn").addEventListener("click",startGame);
+
+$("answerForm").addEventListener("submit",checkAnswer);
+
+$("saveBtn").addEventListener("click",saveScore);
+
+$("againBtn").addEventListener("click",returnHome);
+
+
+/* =========================
+   NOMBRES
+========================= */
+
+function formatNumber(n){
+
+return new Intl.NumberFormat("ca-ES").format(n);
+
+}
+
+
+function parseAnswer(value){
+
+const clean =
+value.replace(/[.\s\u00A0]/g,"")
+.replace(/,/g,"");
+
+if(!/^\d+$/.test(clean))
+return NaN;
+
+return Number(clean);
+
+}
+
+
+function rand(min,max){
+
+return Math.floor(
+Math.random()*(max-min+1)
+)+min;
+
+}
+
+
+function roundTo(number,unit){
+
+return Math.round(number/unit)*unit;
+
+}
+
+
+/* =========================
+   GENERAR APROXIMACIONS
+========================= */
+
+function makeQuestion(level){
+
+let options;
+
+if(level==="mitja"){
+
+options=[
+
+{
+unit:10,
+label:"Aproxima a les desenes",
+min:11,
+max:9999
+},
+
+{
+unit:100,
+label:"Aproxima a les centenes",
+min:101,
+max:9999
+},
+
+{
+unit:1000,
+label:"Aproxima a les unitats de miler",
+min:1001,
+max:99999
+}
+
+];
+
+}else{
+
+options=[
+
+{
+unit:10000,
+label:"Aproxima a les desenes de miler",
+min:10001,
+max:999999
+},
+
+{
+unit:100000,
+label:"Aproxima a les centenes de miler",
+min:100001,
+max:9999999
+},
+
+{
+unit:1000000,
+label:"Aproxima als milions",
+min:1000001,
+max:99999999
+},
+
+{
+unit:10000000,
+label:"Aproxima a les desenes de milió",
+min:10000001,
+max:999999999
+}
+
+];
+
+}
+
+
+const option =
+options[rand(0,options.length-1)];
+
+let number;
+
+
+/* Evitem que el número ja sigui exacte */
+
+do{
+
+number=rand(option.min,option.max);
+
+}while(number%option.unit===0);
+
+
+return{
+
+number:number,
+
+unit:option.unit,
+
+label:option.label,
+
+answer:roundTo(number,option.unit)
+
+};
+
+}
+
+
+/* =========================
+   CREAR 10 PREGUNTES
+========================= */
+
+function buildQuestions(){
+
+const result=[];
+const used=new Set();
+
+while(result.length<10){
+
+const q=makeQuestion(selectedLevel);
+
+const key=q.number+"-"+q.unit;
+
+if(!used.has(key)){
+
+used.add(key);
+
+result.push(q);
+
+}
+
+}
+
+return result;
+
+}
+
+
+/* =========================
+   COMENÇAR
+========================= */
+
+function startGame(){
+
+questions=buildQuestions();
+
+current=0;
+saved=false;
+
+$("home").style.display="none";
+$("finish").style.display="none";
+$("game").style.display="block";
+
+$("gameLevel").textContent =
+selectedLevel==="mitja"
+? "🏎️ CICLE MITJÀ"
+: "🏎️ CICLE SUPERIOR";
+
+
+/*
+IMPORTANT:
+El temps comença aquí,
+però NO es mostra enlloc.
+*/
+
+startTime=performance.now();
+
+showQuestion();
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+
+/* =========================
+   MOSTRAR PREGUNTA
+========================= */
+
+function showQuestion(){
+
+const q=questions[current];
+
+$("counter").textContent =
+(current+1)+" / 10";
+
+$("target").textContent=q.label;
+
+$("number").textContent=
+formatNumber(q.number);
+
+$("answerInput").value="";
+
+$("feedback").textContent="";
+
+$("feedback").className="feedback";
+
+$("progressBar").style.width=
+(current*10)+"%";
+
+setTimeout(()=>{
+$("answerInput").focus();
+},50);
+
+}
+
+
+/* =========================
+   COMPROVAR
+========================= */
+
+function checkAnswer(event){
+
+event.preventDefault();
+
+const q=questions[current];
+
+const answer=
+parseAnswer(
+$("answerInput").value
+);
+
+
+if(Number.isNaN(answer)){
+
+$("feedback").textContent=
+"Escriu un nombre.";
+
+$("feedback").className=
+"feedback bad";
+
+return;
+
+}
+
+
+if(answer===q.answer){
+
+$("feedback").textContent=
+"✓ Correcte!";
+
+$("feedback").className=
+"feedback ok";
+
+current++;
+
+$("progressBar").style.width=
+(current*10)+"%";
+
+
+if(current===10){
+
+finalMs=
+Math.round(
+performance.now()-startTime
+);
+
+setTimeout(showFinish,350);
+
+}else{
+
+setTimeout(showQuestion,400);
+
+}
+
+}else{
+
+$("feedback").textContent=
+"✗ Torna-ho a provar!";
+
+$("feedback").className=
+"feedback bad";
+
+$("answerInput").select();
+
+}
+
+}
+
+
+/* =========================
+   FORMAT DEL TEMPS
+========================= */
+
+function formatTime(ms){
+
+const hundredths=
+Math.floor(ms/10);
+
+const cent=
+hundredths%100;
+
+const totalSeconds=
+Math.floor(hundredths/100);
+
+const seconds=
+totalSeconds%60;
+
+const minutes=
+Math.floor(totalSeconds/60);
+
+
+if(minutes>0){
+
+return (
+minutes+
+":"+
+String(seconds).padStart(2,"0")+
+","+
+String(cent).padStart(2,"0")
+);
+
+}
+
+return (
+seconds+
+","+
+String(cent).padStart(2,"0")+
+" s"
+);
+
+}
+
+
+/* =========================
+   FINAL
+========================= */
+
+function showFinish(){
+
+$("game").style.display="none";
+
+$("finish").style.display="block";
+
+$("finalTime").textContent=
+formatTime(finalMs);
+
+$("finishText").textContent=
+selectedLevel==="mitja"
+
+? "Has completat correctament les 10 aproximacions de Cicle Mitjà."
+
+: "Has completat correctament les 10 aproximacions de Cicle Superior.";
+
+
+$("playerName").value="";
+
+$("saveStatus").textContent="";
+
+$("saveBtn").disabled=false;
+
+$("saveBtn").textContent=
+"GUARDA TEMPS";
+
+setTimeout(()=>{
+$("playerName").focus();
+},100);
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+
+/* =========================
+   GUARDAR TEMPS
+========================= */
+
+async function saveScore(){
+
+if(saved)return;
+
+const nom=
+$("playerName")
+.value
+.trim()
+.replace(/\s+/g," ");
+
+
+if(nom.length<1 || nom.length>20){
+
+$("saveStatus").textContent=
+"Escriu un nom o àlies d'entre 1 i 20 caràcters.";
+
+$("saveStatus").className=
+"save-status bad";
+
+return;
+
+}
+
+
+$("saveBtn").disabled=true;
+
+$("saveBtn").textContent=
+"GUARDANT...";
+
+
+try{
+
+const response=
+await fetch(
+
+SUPABASE_URL+
+"/rest/v1/pole_position",
+
+{
+
+method:"POST",
+
+headers:{
+
+"apikey":SUPABASE_KEY,
+
+"Authorization":
+"Bearer "+SUPABASE_KEY,
+
+"Content-Type":
+"application/json",
+
+"Prefer":
+"return=minimal"
+
+},
+
+body:JSON.stringify({
+
+nom:nom,
+
+cicle:selectedLevel,
+
+temps_ms:finalMs
+
+})
+
+}
+
+);
+
+
+if(!response.ok){
+
+throw new Error(
+await response.text()
+);
+
+}
+
+
+saved=true;
+
+$("saveStatus").textContent=
+"✓ Temps guardat al rànquing!";
+
+$("saveStatus").className=
+"save-status ok";
+
+$("saveBtn").textContent=
+"GUARDAT ✓";
+
+
+await loadRankings();
+
+
+}catch(error){
+
+console.error(error);
+
+$("saveStatus").textContent=
+"No s'ha pogut guardar. Torna-ho a provar.";
+
+$("saveStatus").className=
+"save-status bad";
+
+$("saveBtn").disabled=false;
+
+$("saveBtn").textContent=
+"GUARDA TEMPS";
+
+}
+
+}
+
+
+/* =========================
+   TOP 10
+========================= */
+
+async function getRanking(level){
+
+const url=
+
+SUPABASE_URL+
+"/rest/v1/pole_position"+
+"?select=nom,temps_ms"+
+"&cicle=eq."+level+
+"&order=temps_ms.asc"+
+"&limit=10";
+
+
+const response=
+await fetch(url,{
+
+headers:{
+
+"apikey":SUPABASE_KEY,
+
+"Authorization":
+"Bearer "+SUPABASE_KEY
+
+}
+
+});
+
+
+if(!response.ok){
+
+throw new Error(
+await response.text()
+);
+
+}
+
+
+return await response.json();
+
+}
+
+
+/* =========================
+   DIBUIXAR CLASSIFICACIÓ
+========================= */
+
+function renderRanking(element,data){
+
+if(data.length===0){
+
+element.innerHTML=
+'<div class="empty">Encara no hi ha cap temps.<br>Sigues el primer!</div>';
+
+return;
+
+}
+
+
+element.className="";
+
+
+element.innerHTML=
+data.map((item,index)=>{
+
+let medal="";
+
+if(index===0)medal="🥇";
+else if(index===1)medal="🥈";
+else if(index===2)medal="🥉";
+else medal=(index+1)+".";
+
+return `
+
+<div class="row">
+
+<div class="position">
+${medal}
+</div>
+
+<div class="driver">
+${escapeHTML(item.nom)}
+</div>
+
+<div class="time">
+${formatTime(item.temps_ms)}
+</div>
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+
+/* =========================
+   CARREGAR DOS TOP 10
+========================= */
+
+async function loadRankings(){
+
+$("rankMitja").innerHTML=
+'<div class="loading">Carregant classificació...</div>';
+
+$("rankSuperior").innerHTML=
+'<div class="loading">Carregant classificació...</div>';
+
+
+try{
+
+const [mitja,superior]=
+await Promise.all([
+
+getRanking("mitja"),
+
+getRanking("superior")
+
+]);
+
+
+renderRanking(
+$("rankMitja"),
+mitja
+);
+
+renderRanking(
+$("rankSuperior"),
+superior
+);
+
+
+}catch(error){
+
+console.error(error);
+
+$("rankMitja").innerHTML=
+'<div class="empty">No s’ha pogut carregar.</div>';
+
+$("rankSuperior").innerHTML=
+'<div class="empty">No s’ha pogut carregar.</div>';
+
+}
+
+}
+
+
+/* =========================
+   SEGURETAT DEL NOM
+========================= */
+
+function escapeHTML(text){
+
+return text
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+
+}
+
+
+/* =========================
+   TORNAR A LA PORTADA
+========================= */
+
+function returnHome(){
+
+$("finish").style.display="none";
+
+$("game").style.display="none";
+
+$("home").style.display="block";
+
+selectedLevel=null;
+
+saved=false;
+
+document
+.querySelectorAll(".level")
+.forEach(
+b=>b.classList.remove("selected")
+);
+
+$("startBtn").disabled=true;
+
+loadRankings();
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+
+/* =========================
+   INICI
+========================= */
+
+loadRankings();
+
+</script>
+
+</body>
+</html>
