@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ca">
 <head>
@@ -55,6 +56,66 @@ h1{
   font-size:1.08rem;
   line-height:1.6;
   color:#40516a;
+}
+
+/* ACCÉS A GOOGLE CLASSROOM */
+
+.classroom-access{
+  display:flex;
+  justify-content:center;
+  padding:0 20px;
+  margin:5px auto 0;
+}
+
+.classroom-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+  padding:15px 25px;
+  background:#fff;
+  border:2px solid #d7e8dd;
+  border-radius:20px;
+  color:var(--navy);
+  text-decoration:none;
+  box-shadow:0 10px 28px #17304b16;
+  transition:transform .22s ease,box-shadow .22s ease;
+}
+
+.classroom-link:hover{
+  transform:translateY(-5px);
+  box-shadow:0 16px 34px #17304b25;
+}
+
+.classroom-logo{
+  width:58px;
+  height:48px;
+  display:block;
+  flex-shrink:0;
+}
+
+.classroom-text{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  text-align:left;
+}
+
+.classroom-text strong{
+  font-size:1.12rem;
+  font-weight:900;
+}
+
+.classroom-text small{
+  color:#617286;
+  font-size:.85rem;
+}
+
+.classroom-arrow{
+  font-size:1.35rem;
+  font-weight:800;
+  margin-left:12px;
+  color:#4285f4;
 }
 
 .cards{
@@ -178,6 +239,20 @@ footer{
   .tagline{
     letter-spacing:.12em;
   }
+
+  .classroom-link{
+    padding:13px 18px;
+    gap:11px;
+  }
+
+  .classroom-logo{
+    width:48px;
+    height:40px;
+  }
+
+  .classroom-arrow{
+    margin-left:2px;
+  }
 }
 </style>
 </head>
@@ -203,6 +278,49 @@ footer{
   </p>
 
 </header>
+
+
+<!-- ACCÉS DIRECTE A GOOGLE CLASSROOM -->
+
+<div class="classroom-access">
+
+  <a
+    class="classroom-link"
+    href="https://classroom.google.com/"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Obrir Google Classroom en una pestanya nova"
+  >
+
+    <!-- Icona vectorial de Google Classroom -->
+
+    <svg
+      class="classroom-logo"
+      viewBox="0 0 64 52"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect x="2" y="2" width="60" height="48" rx="4" fill="#0F9D58"/>
+      <rect x="9" y="9" width="46" height="34" fill="#F7F7F7"/>
+      <rect x="13" y="13" width="38" height="26" fill="#0F9D58"/>
+      <circle cx="32" cy="24" r="6" fill="#FFFFFF"/>
+      <path d="M20 36c0-7 5-10 12-10s12 3 12 10" fill="#FFFFFF"/>
+      <circle cx="17" cy="28" r="4" fill="#F4B400"/>
+      <circle cx="47" cy="28" r="4" fill="#F4B400"/>
+      <path d="M10 39c0-6 3-9 7-9s7 3 7 9" fill="#F4B400"/>
+      <path d="M40 39c0-6 3-9 7-9s7 3 7 9" fill="#F4B400"/>
+    </svg>
+
+    <span class="classroom-text">
+      <strong>GOOGLE CLASSROOM</strong>
+      <small>Accedeix a les teves classes i tasques</small>
+    </span>
+
+    <span class="classroom-arrow">↗</span>
+
+  </a>
+
+</div>
 
 
 <main class="cards">
