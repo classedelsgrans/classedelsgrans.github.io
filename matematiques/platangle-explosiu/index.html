@@ -6,6 +6,38 @@
 html,body{min-height:100%;overflow-x:hidden}#app{width:min(100%,1480px);height:auto;min-height:100dvh;max-width:1480px;display:flex;flex-direction:column;gap:8px;padding:10px 14px}header{margin:0}.card{padding:7px 12px}#stage{width:100%;height:auto;min-height:0;aspect-ratio:16/9;flex:none;background:#101d39}#scene{width:100%;height:100%;object-fit:fill}footer{padding:0;gap:8px}#help{font-size:11px;line-height:1.3}input{padding:7px;width:76px}button{padding:9px 14px}#form{gap:10px}label{gap:3px}
 @media(max-width:650px){#app{padding:6px;gap:5px}.brand{font-size:15px}.card{padding:5px 8px;font-size:12px}header{gap:5px}.sub{font-size:10px}footer{gap:5px}button{padding:8px;font-size:12px}input{width:63px;padding:6px}#form{gap:6px}label{font-size:10px}#help{font-size:10px}}
 @media(max-height:480px){#help{display:none}#app{gap:4px;padding:4px 8px}.brand{order:0;width:auto}.card{padding:3px 8px}.sub{font-size:9px}header{flex-wrap:nowrap}button,input{padding:5px}label{font-size:10px}.panel{padding:15px}}
+
+/* Escenari fluid: aprofita l'alçada i l'amplada útils de la finestra. */
+html,body{height:100%;margin:0}
+body{overflow:hidden}
+#app{
+  width:100%;max-width:none;height:100vh;height:100dvh;min-height:0;
+  padding:8px 12px;display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto auto;gap:6px;
+}
+#stage{
+  width:100%;height:100%;min-height:0;min-width:0;
+  aspect-ratio:auto;align-self:stretch;justify-self:stretch;
+  overflow:hidden;
+}
+#scene{
+  display:block;width:100%;height:100%;
+  object-fit:contain;
+}
+header{margin:0}
+footer{padding:0}
+#help{margin:0}
+@media(max-width:650px){
+  #app{padding:5px;gap:4px}
+  #help{font-size:10px}
+}
+@media(max-height:540px){
+  #app{gap:3px;padding:3px 8px}
+  #help{display:none}
+  header{gap:5px}
+  .card{padding:3px 8px}
+  footer{gap:4px}
+}
 </style><style>
 #angleQuiz{position:fixed;inset:0;z-index:9999;background:#071023d9;display:grid;place-items:center;padding:16px}#angleQuiz[hidden]{display:none!important}
 .quiz-panel{width:min(490px,100%);background:#142541;border:2px solid #ffd45a;border-radius:22px;padding:24px;text-align:center;box-shadow:0 24px 70px #0009}
