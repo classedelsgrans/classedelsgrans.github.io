@@ -27,95 +27,6 @@
     }
 
     /* =========================
-       PANTALLA DE CONTRASEÑA
-       ========================= */
-
-    #acceso {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 25px;
-        background:
-            radial-gradient(circle at 30% 20%, #6e5794 0%, transparent 35%),
-            radial-gradient(circle at 80% 80%, #326f73 0%, transparent 35%),
-            #182328;
-        transition: opacity .7s ease, visibility .7s ease;
-    }
-
-    #acceso.oculto {
-        opacity: 0;
-        visibility: hidden;
-    }
-
-    .caja-acceso {
-        width: min(440px, 100%);
-        padding: 42px 35px;
-        border-radius: 28px;
-        text-align: center;
-        color: white;
-        background: rgba(255,255,255,.11);
-        border: 1px solid rgba(255,255,255,.18);
-        box-shadow: 0 25px 70px rgba(0,0,0,.35);
-        backdrop-filter: blur(16px);
-    }
-
-    .candado {
-        font-size: 52px;
-        margin-bottom: 12px;
-    }
-
-    .caja-acceso h1 {
-        margin: 0 0 12px;
-        font-size: 29px;
-    }
-
-    .caja-acceso p {
-        opacity: .82;
-        line-height: 1.5;
-        margin-bottom: 25px;
-    }
-
-    .caja-acceso input {
-        width: 100%;
-        padding: 15px;
-        border: none;
-        outline: none;
-        border-radius: 14px;
-        font-size: 17px;
-        text-align: center;
-        margin-bottom: 12px;
-    }
-
-    .caja-acceso button {
-        width: 100%;
-        padding: 14px;
-        border: none;
-        border-radius: 14px;
-        background: #ffffff;
-        color: #263238;
-        font-size: 17px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: transform .2s, background .2s;
-    }
-
-    .caja-acceso button:hover {
-        transform: translateY(-2px);
-        background: #f0eee9;
-    }
-
-    #error {
-        height: 22px;
-        margin-top: 12px;
-        font-size: 14px;
-        color: #ffd4d4;
-    }
-
-
-    /* =========================
        CABECERA
        ========================= */
 
@@ -257,7 +168,7 @@
     }
 
     .contenido.abierto {
-        max-height: 700px;
+        max-height: 1000px;
         opacity: 1;
         margin-top: 22px;
     }
@@ -430,41 +341,6 @@
 
 
 <body>
-
-
-<!-- =========================
-     ACCESO
-     ========================= -->
-
-<div id="acceso">
-
-    <div class="caja-acceso">
-
-        <div class="candado">🔐</div>
-
-        <h1>Hay algo por descubrir...</h1>
-
-        <p>
-            Para entrar en este proyecto necesitarás la contraseña.
-        </p>
-
-        <input
-            id="password"
-            type="password"
-            placeholder="Escribe la contraseña..."
-            autocomplete="off"
-        >
-
-        <button onclick="comprobarClave()">
-            Descubrir
-        </button>
-
-        <div id="error"></div>
-
-    </div>
-
-</div>
-
 
 
 <!-- =========================
@@ -656,101 +532,38 @@
 
 
 
-    <!-- HITO 4 -->
-
+    <!-- HITO 4: INVESTIGACIÓN POR GRUPOS -->
     <section class="hito" id="hito4">
-
-        <div class="punto" onclick="abrirHito(4)">
-            ❓
+      <div class="punto" onclick="abrirHito(4)">🔎</div>
+      <div class="tarjeta">
+        <div class="numero">Cuarto paso</div>
+        <h2>Minerales trabajados por grupos en Classroom</h2>
+        <p>Investigamos siete minerales: oro, diamante, grafito, cuarzo, magnetita, halita y fluorita.</p>
+        <div class="contenido" id="contenido4">
+          <div class="mensaje">💎 Cada equipo investiga su mineral y comparte sus descubrimientos.</div>
+          <p><a href="https://classroom.google.com/" target="_blank" rel="noopener noreferrer">Abrir Google Classroom ↗</a></p>
         </div>
-
-        <div class="tarjeta">
-
-            <div class="numero">
-                ¿Cuarto paso?
-            </div>
-
-            <h2>
-                ¿Y ahora qué?
-            </h2>
-
-            <p>
-                A partir de aquí todavía no sabemos exactamente qué camino
-                seguiremos.
-            </p>
-
-            <div class="contenido" id="contenido4">
-
-                <div class="mensaje">
-
-                    🗺️ El resto del camino
-                    <strong>todavía no está escrito.</strong>
-
-                    <br><br>
-
-                    Tendremos que decidir juntos qué necesitamos aprender,
-                    qué queremos investigar y cómo podemos encontrar respuestas
-                    a nuestras preguntas.
-
-                </div>
-
-                <div class="misterio">
-                    ? ? ?
-                </div>
-
-            </div>
-
-        </div>
-
+      </div>
     </section>
-
+    <!-- HITO 5: PRESENTACIÓN -->
+    <section class="hito" id="hito5">
+      <div class="punto" onclick="abrirHito(5)">📖</div>
+      <div class="tarjeta">
+        <div class="numero">Quinto paso</div>
+        <h2>Descubrimos los minerales</h2>
+        <p>Repasamos las preguntas, las propiedades y los usos de los minerales.</p>
+        <div class="contenido" id="contenido5">
+          <div class="mensaje">📚 Presentación de nuestro proyecto: 32 diapositivas sobre el mundo de los minerales.</div>
+          <p>El PDF de la presentación se incorporará aquí cuando esté publicado en el repositorio.</p>
+        </div>
+      </div>
+    </section>
 
 </main>
 
 
 
 <script>
-
-/* =========================
-   CONTRASEÑA
-   ========================= */
-
-function comprobarClave() {
-
-    const entrada = document
-        .getElementById("password")
-        .value
-        .trim()
-        .toLowerCase();
-
-    if (entrada === "curiosidad") {
-
-        document
-            .getElementById("acceso")
-            .classList.add("oculto");
-
-    } else {
-
-        document.getElementById("error").textContent =
-            "Esa no es la contraseña... 🤔";
-
-    }
-}
-
-
-/* Permitir pulsar ENTER */
-
-document
-    .getElementById("password")
-    .addEventListener("keydown", function(event) {
-
-        if (event.key === "Enter") {
-            comprobarClave();
-        }
-
-    });
-
-
 
 /* =========================
    ITINERARIO
