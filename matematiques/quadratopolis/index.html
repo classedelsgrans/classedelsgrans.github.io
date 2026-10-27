@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quadratòpolis · La Classe dels Grans</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#101d37,#071225);color:#f4f8ff;font-family:system-ui,Arial,sans-serif}
+main{max-width:1160px;margin:auto;padding:20px}
+h1{font-size:clamp(28px,4vw,48px);margin:8px 0}p{color:#c4d2eb;line-height:1.45}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px}
+.board,.panel{border:1px solid #3b5379;background:#152540;border-radius:18px;padding:18px}
+.board{display:grid;place-items:center}
+svg{width:min(100%,610px);height:auto;touch-action:manipulation}
+.point{cursor:pointer;outline:none}.point circle{fill:#f3f8ff;stroke:#243a58;stroke-width:2;transition:r .12s}
+.point:hover circle,.point:focus circle{fill:#ffe078;stroke:#ffbc45;r:12}
+.point.selected circle{fill:#ffe078;stroke:#ffbc45;r:12}
+.panel{display:flex;flex-direction:column;gap:14px}
+.count{font-size:64px;color:#79f5ae;font-weight:900;line-height:1}
+button{border:0;border-radius:11px;background:#ffe078;color:#17213a;font-size:16px;font-weight:850;padding:13px;cursor:pointer}
+button.secondary{background:#304568;color:white}
+.actions{display:grid;gap:10px;margin-top:auto}
+#message{min-height:52px;font-weight:800;font-size:19px}
+#message.success{color:#81f2b2}#message.fail{color:#ffb2a6}
+#steps{font-size:18px;font-weight:750;color:#ffe078}
+small{color:#b4c6e4}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.board,.panel{padding:12px}.count{font-size:48px}}
+</style></head>
+<body><main>
+<div style="color:#ffe078;font-weight:800;letter-spacing:2px;font-size:12px">LA CLASSE DELS GRANS · MATEMÀTIQUES</div>
+<h1>🔎 Quadratòpolis</h1>
+<p>Troba tots els quadrats de la quadrícula! <strong>Clica els quatre vèrtexs d'un quadrat, un rere l'altre.</strong> Cada quadrat correcte quedarà dibuixat amb un color diferent.</p>
+<div class="layout">
+<section class="board"><svg id="grid" viewBox="0 0 460 460" aria-label="Quadrícula de tres per tres amb vèrtexs clicables"></svg></section>
+<aside class="panel">
+<div><small>QUADRATS DESCOBERTS</small><div class="count" id="count">0</div></div>
+<div id="steps">Selecciona el primer vèrtex (0/4)</div>
+<p>Marca les <strong>quatre cantonades</strong> d'un quadrat. Quan el completis correctament, sentiràs un <strong>«bing!»</strong>.</p>
+<p><small>Si marques un punt equivocat, pots desfer l'últim. No comptarem dues vegades el mateix quadrat.</small></p>
+<div id="message" role="status" aria-live="polite"></div>
+<div class="actions"><button id="finish">🏁 He acabat!</button><button id="undo" class="secondary">↶ Desfer últim vèrtex</button><button id="reset" class="secondary">↻ Tornar a començar</button></div>
+</aside></div></main>
+<script>
+const svg=document.getElementById('grid'),count=document.getElementById('count'),steps=document.getElementById('steps'),message=document.getElementById('message');
+const ns='http://www.w3.org/2000/svg',origin=50,step=120;
+const colors=['#ff6b6b','#5bd6ff','#ffcc5c','#b28cff','#66ed9d','#ff8bd2','#ffa85c','#7de1e4','#e6a5ff','#d6e75b','#ff7799','#84aaff','#e7ba78','#78edca'];
+let selected=[],found=new Map(),audio;
+function node(tag,attributes,parent=svg){let e=document.createElementNS(ns,tag);Object.entries(attributes||{}).forEach(([k,v])=>e.setAttribute(k,v));parent.appendChild(e);return e}
+const completed=node('g',{}),draft=node('g',{}),grid=node('g',{}),points=node('g',{});
+for(let i=0;i<4;i++){let v=origin+i*step;node('line',{x1:v,y1:origin,x2:v,y2:origin+360,stroke:'#92a9cb','stroke-width':3},grid);node('line',{x1:origin,y1:v,x2:origin+360,y2:v,stroke:'#92a9cb','stroke-width':3},grid)}
+const pointElements=new Map();
+for(let y=0;y<4;y++)for(let x=0;x<4;x++){let g=node('g',{class:'point',role:'button',tabindex:0,'aria-label':`Vèrtex columna ${x+1}, fila ${y+1}`},points);node('circle',{cx:origin+x*step,cy:origin+y*step,r:8},g);const p={x,y};g.addEventListener('click',()=>pick(p));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(p)}});pointElements.set(x+','+y,g)}
+function coord(p){return [origin+p.x*step,origin+p.y*step]}
+function segment(a,b,parent,color,width=6){let [x1,y1]=coord(a),[x2,y2]=coord(b);node('line',{x1,y1,x2,y2,stroke:color,'stroke-width':width,'stroke-linecap':'round'},parent)}
+function squareOf(v){if(v.length!==4)return null;const xs=[...new Set(v.map(p=>p.x))].sort((a,b)=>a-b),ys=[...new Set(v.map(p=>p.y))].sort((a,b)=>a-b);if(xs.length!==2||ys.length!==2||xs[1]-xs[0]!==ys[1]-ys[0])return null;const corners=new Set(v.map(p=>p.x+','+p.y));if(![xs[0]+','+ys[0],xs[1]+','+ys[0],xs[1]+','+ys[1],xs[0]+','+ys[1]].every(k=>corners.has(k)))return null;return {x:xs[0],y:ys[0],s:xs[1]-xs[0]}}
+function id(s){return `${s.x},${s.y},${s.s}`}
+function redraw(){completed.replaceChildren();for(let [key,entry] of found){let {s,color}=entry;let [x,y]=coord(s);node('rect',{x,y,width:s.s*step,height:s.s*step,fill:'none',stroke:color,'stroke-width':7,'stroke-linejoin':'round',opacity:.9},completed)}draft.replaceChildren();for(let i=1;i<selected.length;i++)segment(selected[i-1],selected[i],draft,'#ffe078',5);selected.forEach(p=>{let [cx,cy]=coord(p);node('circle',{cx,cy,r:13,fill:'#ffe078',stroke:'#fff','stroke-width':2},draft)});steps.textContent=selected.length?`Vèrtexs seleccionats: ${selected.length}/4`:'Selecciona el primer vèrtex (0/4)';count.textContent=found.size}
+function setMessage(text,cls=''){message.textContent=text;message.className=cls}
+function audioCtx(){audio??=new(window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();return audio}
+function note(freq,time,duration,type='sine',vol=.12){let a=audioCtx(),o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(freq,time);g.gain.setValueAtTime(.0001,time);g.gain.exponentialRampToValueAtTime(vol,time+.014);g.gain.exponentialRampToValueAtTime(.0001,time+duration);o.connect(g).connect(a.destination);o.start(time);o.stop(time+duration+.02)}
+function bing(){try{let t=audioCtx().currentTime;note(880,t,.23);note(1320,t+.10,.38)}catch(e){}}
+function applause(){try{let a=audioCtx(),t=a.currentTime,sr=a.sampleRate;for(let i=0;i<35;i++){let b=a.createBuffer(1,Math.floor(sr*.07),sr),d=b.getChannelData(0);for(let j=0;j<d.length;j++)d[j]=(Math.random()*2-1)*Math.exp(-j/(sr*.013));let src=a.createBufferSource(),gain=a.createGain();src.buffer=b;gain.gain.value=.18;src.connect(gain).connect(a.destination);src.start(t+i*.045+Math.random()*.03)}[523,659,784,1047].forEach((f,i)=>note(f,t+i*.13,.32))}catch(e){}}
+function fail(){try{let t=audioCtx().currentTime;[392,370,349,294].forEach((f,i)=>note(f,t+i*.24,.24,'sawtooth',.065))}catch(e){}}
+function pick(p){if(selected.some(v=>v.x===p.x&&v.y===p.y)){setMessage('Aquest vèrtex ja està seleccionat.','fail');return}selected.push(p);setMessage('');if(selected.length===4){let s=squareOf(selected);if(!s){setMessage('Aquests quatre vèrtexs no formen un quadrat. Torna-ho a provar!','fail')}else if(found.has(id(s))){setMessage('Aquest quadrat ja l’havies trobat!','fail')}else{found.set(id(s),{s,color:colors[found.size%colors.length]});bing();setMessage('✓ Quadrat correcte!','success')}selected=[]}redraw()}
+document.getElementById('undo').onclick=()=>{selected.pop();setMessage('');redraw()};
+document.getElementById('reset').onclick=()=>{selected=[];found.clear();setMessage('');redraw()};
+document.getElementById('finish').onclick=()=>{if(found.size===14){setMessage('👏 Molt bé! Has trobat tots els quadrats!','success');applause()}else{setMessage('📯 Te n’has deixat, torna-ho a provar!','fail');fail()}};
+redraw();
+</script></body></html>
