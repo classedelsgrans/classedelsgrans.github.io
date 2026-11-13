@@ -1,0 +1,20 @@
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#f5f6ef;background:#091e1c}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#21584b,#091e1c 60%);min-height:100vh}main{max-width:1050px;margin:auto;padding:28px 20px 65px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.eyebrow{color:#a6e4bc;font-size:.79rem;letter-spacing:.16em;font-weight:800}h1{font-size:clamp(2.4rem,7vw,5.2rem);line-height:1;letter-spacing:-.065em;margin:18px 0 10px}h2{font-size:clamp(1.5rem,4vw,2.2rem);letter-spacing:-.04em;margin:8px 0 15px}p{line-height:1.5;color:#d0e0d7}.chip{border:1px solid #54776b;border-radius:99px;padding:9px 15px;color:#c5e8d3;font-weight:700}.board{display:grid;grid-template-columns:1fr 1fr;gap:25px;margin-top:30px}.photo{position:relative;background:#101b19;border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center}.photo img{width:100%;height:100%;position:absolute;inset:0;object-fit:contain}.photo .loading{padding:30px;text-align:center}.panel{background:#15352f;border:1px solid #356457;border-radius:20px;padding:26px}.clues{display:grid;gap:13px;margin:22px 0}.clue{display:flex;gap:13px;align-items:start;background:#20473e;border-radius:12px;padding:15px;line-height:1.4}.num{font-weight:900;color:#a6e4bc}.answers{display:grid;gap:10px}button{font:inherit;cursor:pointer;border:0}.answer{width:100%;padding:15px 18px;border-radius:12px;background:#f4f5e9;color:#102f27;font-size:1.05rem;font-weight:800;text-align:left;transition:transform .12s}.answer:hover:not(:disabled){transform:translateY(-2px);background:#d3f1d6}.answer:disabled{cursor:default;opacity:.72}.answer.correct{background:#9fe6b5;opacity:1}.answer.wrong{background:#f3a79d;opacity:1}.feedback{margin-top:18px;padding:17px;background:#0e2924;border:1px solid #416f5d;border-radius:12px}.feedback strong{font-size:1.2rem}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:17px}.primary{padding:13px 22px;background:#b6e9b5;border-radius:11px;color:#113429;font-weight:900}.secondary{padding:13px 22px;border:1px solid #83ad97;border-radius:11px;background:transparent;color:#e5f6e9}.source{font-size:.75rem;color:#b3c9bd;margin-top:12px;min-height:35px}.source a{color:#b8ebc2}.foot{margin-top:35px;color:#9eb8aa;font-size:.82rem}@media(max-width:740px){.board{grid-template-columns:1fr}.panel{padding:20px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+h1 span, .foot a { color: #a6e4bc; }
+button:focus-visible, a:focus-visible { outline: 3px solid #ffd689; outline-offset: 3px; }
+[hidden] { display: none !important; }
+.feedback p { margin-bottom: 0; }
+.board:has(#sample[hidden]) { grid-template-columns: minmax(0, 32rem); }
+.clues:empty, .answers:empty { display: none; }
+.photo { aspect-ratio: 4 / 3; }
+.photo img { display: block; }
+@media (max-width: 480px) {
+  main { padding-top: 20px; }
+  .board { margin-top: 20px; gap: 16px; }
+  .clue { padding: 12px; }
+}
+.credits a { color: #b8ebc2; overflow-wrap: anywhere; }
+.credits-list { display: grid; gap: 12px; }
+.credits article h2 { margin: 0; font-size: 1.45rem; }
+.credits article p { margin: .5rem 0; }
+.credits article:target { border-color: #ffd689; }

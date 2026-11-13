@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>¿Qué mineral soy? · La Classe dels Grans</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="minerales.js"></script>
+  <script defer src="juego.js"></script>
+</head>
+<body>
+  <main>
+    <header class="top">
+      <div class="eyebrow">LA CLASSE DELS GRANS · PROJECTE MINERALS</div>
+      <div class="chip" id="score" aria-live="polite"></div>
+    </header>
+    <h1>¿Qué mineral <span>soy?</span></h1>
+    <p>Observa la muestra, lee las tres pistas y elige una respuesta.</p>
+    <div class="board">
+      <section id="sample" aria-label="Muestra">
+        <div class="photo">
+          <img id="mineralImage" alt="Fotografía de la muestra que debes identificar">
+          <p class="loading" id="photoError" hidden>No se ha podido abrir la foto. Comprueba que has extraído toda la carpeta del ZIP.</p>
+        </div>
+        <div class="source" id="credit" hidden></div>
+      </section>
+      <section class="panel">
+        <div class="eyebrow" id="round"></div>
+        <h2 id="question" tabindex="-1">¿Qué muestra es?</h2>
+        <div class="clues" id="clues"></div>
+        <div class="answers" id="answers"></div>
+        <div class="feedback" id="feedback" role="status" hidden></div>
+        <div class="actions">
+          <button class="primary" id="next" hidden>Siguiente mineral →</button>
+          <button class="secondary" id="restart">Nueva partida</button>
+        </div>
+      </section>
+    </div>
+    <footer class="foot">5 preguntas por partida · <a href="creditos.html" target="_blank" rel="noopener">Créditos fotográficos</a></footer>
+  </main>
+</body>
+</html>
