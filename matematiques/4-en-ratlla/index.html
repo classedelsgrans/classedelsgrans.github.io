@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ca">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4 en ratlla · Multiplicacions</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f1e7;color:#142e33;font:600 1rem system-ui,sans-serif}main{max-width:1030px;margin:auto;padding:clamp(16px,4vw,44px)}h1{font-size:clamp(2.5rem,7vw,5rem);letter-spacing:-.08em;line-height:.95;margin:0}header p{margin:10px 0 22px;color:#425a5d}.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(250px,1fr);gap:24px;align-items:start}.play{background:#193b45;border-radius:24px;padding:clamp(10px,2vw,20px);box-shadow:0 8px 0 #102b34}.board{display:grid;grid-template-columns:repeat(7,1fr);gap:clamp(3px,1vw,9px)}.column{display:grid;gap:inherit;background:transparent;border:0;padding:0;cursor:pointer;border-radius:10px}.column:not(:disabled):hover,.column.selected{background:#46707a}.slot{aspect-ratio:1;border-radius:50%;background:#102a33;box-shadow:inset 0 3px 4px #071d27}.slot[data-side="1"]{background:#ffd052;box-shadow:inset 0 -5px 0 #d99224}.slot[data-side="2"]{background:#ff8582;box-shadow:inset 0 -5px 0 #c94b5b}.slot.win{outline:3px solid white;outline-offset:-4px}.panel{padding:20px;border:1px solid #dbd9ce;background:#fffdf8;border-radius:20px}button,input,select{font:inherit}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #21867e;outline-offset:3px}.action,select,input{border:1px solid #a8b9b7;border-radius:9px;padding:9px;background:#fff;color:inherit}.action{cursor:pointer}.primary{background:#163d46;color:white}.controls,.legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.legend{margin-top:18px}.dot{display:inline-block;width:.8em;height:.8em;border-radius:50%;margin-right:4px}.yellow{background:#ffd052}.pink{background:#ff8582}h2{margin:14px 0 8px;font-size:1.35rem}#options{margin:10px 0}#options button{min-width:64px;min-height:48px;font-size:1.2rem}#options button:hover{background:#28606a}#question{font-size:1.65rem}#feedback{min-height:1.5em;margin-bottom:0}small{display:block;color:#425a5d;margin-top:12px}[hidden]{display:none!important}@media(max-width:700px){.layout{grid-template-columns:1fr;gap:16px}}
+</style>
+<main>
+<header><h1>4 en ratlla</h1><p>Multiplicacions · Cicle mitjà</p></header>
+<div class="layout">
+<section aria-label="Tauler">
+<div class="play"><div class="board" id="board"></div></div>
+<div class="legend"><span><i class="dot yellow"></i>Tu</span><span><i class="dot pink"></i>Ordinador</span></div>
+</section>
+<section class="panel" aria-label="Partida">
+<label for="table">Quina taula vols practicar?</label>
+<div class="controls"><select id="table"><option value="all">Totes (0–10)</option></select><button class="action" id="restart">Nova partida</button><button class="action" id="sound" aria-pressed="true">So activat</button></div>
+<h2 id="status" role="status">Tria una columna</h2>
+<div id="challenge" hidden>
+<div id="question"></div>
+<div id="options" class="controls" role="group" aria-labelledby="question"></div>
+</div>
+<p id="feedback" role="status"></p>
+<small>Tria una columna i clica el resultat correcte per posar-hi la fitxa. Si falles, perds el torn. Fes quatre en horitzontal, vertical o diagonal.</small>
+</section>
+</div>
+</main>
+<script>
+"use strict";
+const ROWS = 6, COLUMNS = 7, PLAYER = 1, COMPUTER = 2;
+const get = id => document.getElementById(id);
+const board = get("board"), table = get("table"), status = get("status");
+const challenge = get("challenge"), options = get("options"), feedback = get("feedback");
+const columns = [], cells = [];
+let grid, phase, selected, problem, winning, timer, audio, sound = true, exercises = [];
+
+for (let n = 0; n <= 10; n++) table.add(new Option("Taula del " + n, n));
+for (let c = 0; c < COLUMNS; c++) {
+  const button = document.createElement("button");
+  button.className = "column";
+  button.type = "button";
+  cells[c] = Array.from({length: ROWS}, () => {
+    const slot = document.createElement("span");
+    slot.className = "slot";
+    slot.setAttribute("aria-hidden", "true");
+    button.append(slot);
+    return slot;
+  });
+  button.addEventListener("click", () => choose(c));
+  board.append(button);
+  columns.push(button);
+}
+
+function landingRow(c) {
+  for (let r = ROWS - 1; r >= 0; r--) if (!grid[r][c]) return r;
+  return -1;
+}
+
+function line(r, c, side) {
+  for (const [dr, dc] of [[0,1],[1,0],[1,1],[1,-1]]) {
+    const points = [[r,c]];
+    for (const sign of [-1,1]) {
+      let y = r + sign * dr, x = c + sign * dc;
+      while (grid[y]?.[x] === side) {
+        points.push([y,x]);
+        y += sign * dr;
+        x += sign * dc;
+      }
+    }
+    if (points.length >= 4) return points;
+  }
+  return [];
+}
+
+function render() {
+  for (let c = 0; c < COLUMNS; c++) {
+    columns[c].disabled = phase !== "player" || landingRow(c) < 0;
+    columns[c].classList.toggle("selected", c === selected);
+    columns[c].setAttribute("aria-label", "Columna " + (c + 1) + ", de dalt a baix: " +
+      grid.map(row => ["buida", "teva fitxa", "fitxa de l’ordinador"][row[c]]).join(", "));
+    for (let r = 0; r < ROWS; r++) {
+      cells[c][r].dataset.side = grid[r][c];
+      cells[c][r].classList.toggle("win", winning.some(([y,x]) => y === r && x === c));
+    }
+  }
+  challenge.hidden = phase !== "player" || selected === null;
+}
+
+function nextExercise() {
+  if (!exercises.length) {
+    const first = table.value === "all" ? Array.from({length: 11}, (_, n) => n) : [Number(table.value)];
+    exercises = first.flatMap(a => Array.from({length: 11}, (_, b) => [a,b]));
+    for (let i = exercises.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [exercises[i], exercises[j]] = [exercises[j], exercises[i]];
+    }
+  }
+  return exercises.pop();
+}
+
+function choose(c) {
+  if (phase !== "player" || landingRow(c) < 0) return;
+  enableAudio();
+  selected = c;
+  if (!problem) {
+    problem = nextExercise();
+    showOptions();
+  }
+  get("question").textContent = problem[0] + " × " + problem[1] + " = ?";
+  status.textContent = "Columna " + (c + 1);
+  render();
+  options.firstElementChild.focus();
+}
+
+function enableAudio() {
+  if (!sound) return;
+  const Audio = window.AudioContext || window.webkitAudioContext;
+  if (!Audio) return;
+  audio ??= new Audio();
+  if (audio.state === "suspended") audio.resume().catch(() => {});
+}
+
+function melody(notes, spacing, type = "sine") {
+  if (!sound || !audio || audio.state !== "running") return;
+  notes.forEach((frequency, i) => {
+    const start = audio.currentTime + i * spacing;
+    const oscillator = audio.createOscillator(), volume = audio.createGain();
+    oscillator.type = type;
+    oscillator.frequency.value = frequency;
+    volume.gain.setValueAtTime(0.001, start);
+    volume.gain.exponentialRampToValueAtTime(0.15, start + 0.015);
+    volume.gain.exponentialRampToValueAtTime(0.001, start + spacing + 0.05);
+    oscillator.connect(volume);
+    volume.connect(audio.destination);
+    oscillator.start(start);
+    oscillator.stop(start + spacing + 0.06);
+  });
+}
+
+function drop(c, side) {
+  const r = landingRow(c);
+  grid[r][c] = side;
+  melody([side === PLAYER ? 330 : 245], 0.075, "triangle");
+  winning = line(r,c,side);
+  if (!winning.length && grid[0].includes(0)) return false;
+  phase = "end";
+  if (!winning.length) {
+    status.textContent = "Empat!";
+  } else {
+    status.textContent = side === PLAYER ? "Has guanyat!" : "Ha guanyat l’ordinador";
+    timer = setTimeout(() => {
+      if (side === PLAYER) melody([523,659,784,1047], 0.14);
+      else melody([392,349,294,220], 0.22);
+    }, 130);
+  }
+  render();
+  get("restart").focus();
+  return true;
+}
+
+const moveOrder = [3, 2, 4, 1, 5, 0, 6];
+const windows = [];
+for (let r = 0; r < ROWS; r++) {
+  for (let c = 0; c < COLUMNS; c++) {
+    for (const [dr, dc] of [[0,1],[1,0],[1,1],[1,-1]]) {
+      const end = c + 3 * dc;
+      if (r + 3 * dr >= ROWS || end < 0 || end >= COLUMNS) continue;
+      windows.push(Array.from({length: 4}, (_, i) => [r + i * dr, c + i * dc]));
+    }
+  }
+}
+
+function evaluate() {
+  let score = 0;
+  const weights = [0, 1, 7, 42];
+  for (const segment of windows) {
+    let players = 0, computers = 0;
+    for (const [r, c] of segment) {
+      if (grid[r][c] === PLAYER) players++;
+      if (grid[r][c] === COMPUTER) computers++;
+    }
+    if (!players) score += weights[computers];
+    if (!computers) score -= weights[players];
+  }
+  return score;
+}
+
+function scoreMove(c, side, depth, alpha, beta) {
+  const r = landingRow(c);
+  grid[r][c] = side;
+  try {
+    if (line(r,c,side).length) return (side === COMPUTER ? 1 : -1) * (10000 + depth);
+    if (!grid[0].includes(0)) return 0;
+    if (!depth) return evaluate();
+    const maximize = side === PLAYER;
+    let best = maximize ? -Infinity : Infinity;
+    for (const next of moveOrder) {
+      if (landingRow(next) < 0) continue;
+      const score = scoreMove(next, maximize ? COMPUTER : PLAYER, depth - 1, alpha, beta);
+      if (maximize) {
+        best = Math.max(best, score);
+        alpha = Math.max(alpha, best);
+      } else {
+        best = Math.min(best, score);
+        beta = Math.min(beta, best);
+      }
+      if (alpha >= beta) break;
+    }
+    return best;
+  } finally {
+    grid[r][c] = 0;
+  }
+}
+
+function chooseComputerMove() {
+  const legal = moveOrder.filter(c => landingRow(c) >= 0);
+  const ranked = legal.map(c => ({c, score: scoreMove(c, COMPUTER, 3, -Infinity, Infinity)}))
+    .sort((a,b) => b.score - a.score);
+  const weaker = ranked.filter(move => move.score < ranked[0].score);
+  if (weaker.length && Math.random() < 0.1) {
+    return weaker[Math.floor(Math.random() * weaker.length)].c;
+  }
+  return ranked[0].c;
+}
+
+function computerTurn(previousFeedback = "") {
+  const c = chooseComputerMove();
+  if (drop(c, COMPUTER)) return;
+  phase = "player";
+  status.textContent = "Tria una columna";
+  feedback.textContent = previousFeedback || "L’ordinador ha jugat a la columna " + (c + 1) + ".";
+  render();
+  columns.find(button => !button.disabled)?.focus();
+}
+
+function showOptions() {
+  const [a, b] = problem;
+  const product = a * b;
+  const candidates = [...new Set([
+    a * (b - 1), a * (b + 1), (a - 1) * b, (a + 1) * b,
+    a + b, product - 1, product + 1, product - 2, product + 2
+  ])].filter(value => value >= 0 && value <= 100 && value !== product);
+  const values = [product];
+  while (values.length < 3) {
+    const index = Math.floor(Math.random() * candidates.length);
+    values.push(candidates.splice(index, 1)[0]);
+  }
+  options.replaceChildren(...values.sort((x, y) => x - y).map(value => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "action primary";
+    button.textContent = value;
+    button.addEventListener("click", () => submitAnswer(value));
+    return button;
+  }));
+}
+
+function submitAnswer(value) {
+  if (phase !== "player" || selected === null) return;
+  enableAudio();
+  const product = problem[0] * problem[1];
+  const correct = value === product;
+  const c = selected;
+  selected = null;
+  problem = null;
+  const message = correct ? "" : "El resultat era " + product + ". Has perdut el torn.";
+  feedback.textContent = message;
+  if (correct && drop(c, PLAYER)) return;
+  phase = "computer";
+  status.textContent = "Torn de l’ordinador";
+  render();
+  timer = setTimeout(() => computerTurn(message), 500);
+}
+
+function reset() {
+  clearTimeout(timer);
+  grid = Array.from({length: ROWS}, () => Array(COLUMNS).fill(0));
+  winning = [];
+  selected = problem = null;
+  phase = "player";
+  options.replaceChildren();
+  feedback.textContent = "";
+  status.textContent = "Tria una columna";
+  render();
+}
+
+get("restart").addEventListener("click", () => {
+  reset();
+  columns[3].focus();
+});
+table.addEventListener("change", () => {
+  exercises = [];
+  reset();
+});
+get("sound").addEventListener("click", event => {
+  sound = !sound;
+  event.currentTarget.textContent = sound ? "So activat" : "So desactivat";
+  event.currentTarget.setAttribute("aria-pressed", String(sound));
+  if (sound) enableAudio();
+  else audio?.suspend().catch(() => {});
+});
+reset();
+</script>
+</html>
