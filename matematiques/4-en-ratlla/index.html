@@ -14,8 +14,8 @@
 <div class="legend"><span><i class="dot yellow"></i>Tu</span><span><i class="dot pink"></i>Ordinador</span></div>
 </section>
 <section class="panel" aria-label="Partida">
-<label for="table">Quina taula vols practicar?</label>
-<div class="controls"><select id="table"><option value="all">Totes (0–10)</option></select><button class="action" id="restart">Nova partida</button><button class="action" id="sound" aria-pressed="true">So activat</button></div>
+<label for="table">Quines taules vols practicar?</label>
+<div class="controls"><select id="table"><option value="0-10">Totes (0–10)</option><option value="0-3">Taules del 0 al 3</option><option value="4-7">Taules del 4 al 7</option><option value="8-10">Taules del 8 al 10</option></select><button class="action" id="restart">Nova partida</button><button class="action" id="sound" aria-pressed="true">So activat</button></div>
 <h2 id="status" role="status">Tria una columna</h2>
 <div id="challenge" hidden>
 <div id="question"></div>
@@ -35,7 +35,6 @@ const challenge = get("challenge"), options = get("options"), feedback = get("fe
 const columns = [], cells = [];
 let grid, phase, selected, problem, winning, timer, audio, sound = true, exercises = [];
 
-for (let n = 0; n <= 10; n++) table.add(new Option("Taula del " + n, n));
 for (let c = 0; c < COLUMNS; c++) {
   const button = document.createElement("button");
   button.className = "column";
@@ -89,7 +88,8 @@ function render() {
 
 function nextExercise() {
   if (!exercises.length) {
-    const first = table.value === "all" ? Array.from({length: 11}, (_, n) => n) : [Number(table.value)];
+    const [min, max] = table.value.split("-").map(Number);
+    const first = Array.from({length: max - min + 1}, (_, n) => min + n);
     exercises = first.flatMap(a => Array.from({length: 11}, (_, b) => [a,b]));
     for (let i = exercises.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
